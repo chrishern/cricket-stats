@@ -1,5 +1,9 @@
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+
+@SpringBootApplication(scanBasePackages = "com.example.cricketstats")
 public class Main {
     public static void main(String[] args) {
-        System.out.println("Hello, Cricket Stats!");
+        SpringApplication.run(Main.class, args);
     }
 }

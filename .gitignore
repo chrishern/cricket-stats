@@ -31,3 +31,6 @@ replay_pid*
 .settings/
 bin/
 tmp/
+
+# VS Code files
+.vscode/
