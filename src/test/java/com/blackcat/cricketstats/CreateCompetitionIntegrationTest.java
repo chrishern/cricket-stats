@@ -4,6 +4,9 @@ import com.blackcat.cricketstats.application.dto.CreateCompetitionRequest;
 import com.blackcat.cricketstats.application.dto.CompetitionResponse;
 import com.blackcat.cricketstats.domain.competition.Format;
 import com.blackcat.cricketstats.domain.competition.Country;
+
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -11,7 +14,6 @@ import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.testcontainers.containers.MySQLContainer;
@@ -25,25 +27,14 @@ import java.time.Duration;
 
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-class CreateCompetitionIntegrationTest {
+public class CreateCompetitionIntegrationTest {
 
-    static MySQLContainer<?> mysql = new MySQLContainer<>("mysql:9.1.0")
+    private static MySQLContainer<?> mysql = new MySQLContainer<>("mysql:9.1.0")
             .withDatabaseName("testdb")
             .withUsername("test")
             .withPassword("test")
             .withEnv("MYSQL_ROOT_PASSWORD", "test")
             .withStartupTimeout(Duration.ofMinutes(10));
-
-    static {
-        mysql.start();
-    }
-
-    @DynamicPropertySource
-    static void configureProps(DynamicPropertyRegistry registry) {
-        registry.add("spring.datasource.url", mysql::getJdbcUrl);
-        registry.add("spring.datasource.username", mysql::getUsername);
-        registry.add("spring.datasource.password", mysql::getPassword);
-    }
 
     @LocalServerPort
     private int port;
@@ -51,9 +42,28 @@ class CreateCompetitionIntegrationTest {
     @Autowired
     private TestRestTemplate restTemplate;
 
+    @BeforeAll
+    private static void setup() {
+        mysql.start();
+    }
+
+    @DynamicPropertySource
+    private static void configureProps(DynamicPropertyRegistry registry) {
+        registry.add("spring.datasource.url", mysql::getJdbcUrl);
+        registry.add("spring.datasource.username", mysql::getUsername);
+        registry.add("spring.datasource.password", mysql::getPassword);
+    }
+
+    @AfterAll
+    private static void teardown() {
+        mysql.stop();
+    }
+
     @Test
-    void shouldCreateCompetitionSuccessfully() throws Exception {
+    public void shouldCreateCompetitionSuccessfully() throws Exception {
+        // Given
         var request = new CreateCompetitionRequest();
+        
         request.setFormat(Format.T_20);
         request.setStartYear("2023");
         request.setEndYear("2024");
@@ -61,12 +71,14 @@ class CreateCompetitionIntegrationTest {
         request.setInternational(true);
         request.setName("Test Competition");
 
+        // When
         var response = restTemplate.postForEntity(
                 "http://localhost:" + port + "/api/competitions",
                 request,
                 CompetitionResponse.class
         );
 
+        // Then
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
         assertThat(response.getBody()).isNotNull();
         assertThat(response.getBody().getId()).isNotNull();
@@ -92,7 +104,8 @@ class CreateCompetitionIntegrationTest {
     }
 
     @Test
-    void shouldReturnBadRequestWhenNameIsBlank() throws Exception {
+    public void shouldReturnBadRequestWhenNameIsBlank() throws Exception {
+        // Given
         var request = new CreateCompetitionRequest();
         request.setFormat(Format.T_20);
         request.setStartYear("2023");
@@ -101,12 +114,14 @@ class CreateCompetitionIntegrationTest {
         request.setInternational(true);
         request.setName("");
 
+        // When
         var response = restTemplate.postForEntity(
                 "http://localhost:" + port + "/api/competitions",
                 request,
                 CompetitionResponse.class
         );
 
+        // Then
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
     }
 }
