@@ -1,16 +1,16 @@
-package com.example.cricketstats.application.service;
+package com.blackcat.cricketstats.application.service;
 
-import com.example.cricketstats.domain.competition.Competition;
-import com.example.cricketstats.domain.competition.CompetitionRepository;
-import com.example.cricketstats.application.dto.CreateCompetitionRequest;
-import com.example.cricketstats.application.dto.CompetitionResponse;
+import com.blackcat.cricketstats.domain.competition.Competition;
+import com.blackcat.cricketstats.domain.competition.CompetitionRepository;
+import com.blackcat.cricketstats.application.dto.CreateCompetitionRequest;
+import com.blackcat.cricketstats.application.dto.CompetitionResponse;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @Transactional
 public class CompetitionService {
-    
+
     private final CompetitionRepository competitionRepository;
 
     public CompetitionService(CompetitionRepository competitionRepository) {

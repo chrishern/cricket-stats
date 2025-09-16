@@ -1,8 +1,8 @@
-package com.example.cricketstats.application.dto;
+package com.blackcat.cricketstats.application.dto;
 
-import com.example.cricketstats.domain.competition.Competition;
-import com.example.cricketstats.domain.competition.Format;
-import com.example.cricketstats.domain.competition.Country;
+import com.blackcat.cricketstats.domain.competition.Competition;
+import com.blackcat.cricketstats.domain.competition.Format;
+import com.blackcat.cricketstats.domain.competition.Country;
 
 public class CompetitionResponse {
     private Integer id;

@@ -1,8 +1,8 @@
-package com.example.cricketstats.interface_layer.controller;
+package com.blackcat.cricketstats.interface_layer.controller;
 
-import com.example.cricketstats.application.dto.CreateCompetitionRequest;
-import com.example.cricketstats.application.dto.CompetitionResponse;
-import com.example.cricketstats.application.service.CompetitionService;
+import com.blackcat.cricketstats.application.dto.CreateCompetitionRequest;
+import com.blackcat.cricketstats.application.dto.CompetitionResponse;
+import com.blackcat.cricketstats.application.service.CompetitionService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/competitions")
 public class CompetitionController {
-    
+
     private final CompetitionService competitionService;
 
     public CompetitionController(CompetitionService competitionService) {

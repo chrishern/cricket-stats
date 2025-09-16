@@ -1,9 +1,9 @@
-package com.example.cricketstats;
+package com.blackcat.cricketstats;
 
-import com.example.cricketstats.application.dto.CreateCompetitionRequest;
-import com.example.cricketstats.application.dto.CompetitionResponse;
-import com.example.cricketstats.domain.competition.Format;
-import com.example.cricketstats.domain.competition.Country;
+import com.blackcat.cricketstats.application.dto.CreateCompetitionRequest;
+import com.blackcat.cricketstats.application.dto.CompetitionResponse;
+import com.blackcat.cricketstats.domain.competition.Format;
+import com.blackcat.cricketstats.domain.competition.Country;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -110,4 +110,3 @@ class CreateCompetitionIntegrationTest {
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
     }
 }
-

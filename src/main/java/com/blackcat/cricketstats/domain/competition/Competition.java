@@ -1,4 +1,4 @@
-package com.example.cricketstats.domain.competition;
+package com.blackcat.cricketstats.domain.competition;
 
 import java.util.Objects;
 
@@ -11,7 +11,7 @@ public class Competition {
     private boolean international;
     private String name;
 
-    public Competition(Integer id, Format format, String startYear, String endYear, 
+    public Competition(Integer id, Format format, String startYear, String endYear,
                       Country country, boolean international, String name) {
         this.id = id;
         this.format = Objects.requireNonNull(format, "Format cannot be null");
@@ -19,12 +19,12 @@ public class Competition {
         this.endYear = Objects.requireNonNull(endYear, "End year cannot be null");
         this.international = international;
         this.name = Objects.requireNonNull(name, "Name cannot be null");
-        
+
         if (!international && country == null) {
             throw new IllegalArgumentException("Country is required when international is false");
         }
         this.country = country;
-        
+
         validateYears(startYear, endYear);
     }
 

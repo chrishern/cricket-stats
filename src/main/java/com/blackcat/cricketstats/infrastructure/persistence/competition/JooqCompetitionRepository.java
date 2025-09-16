@@ -1,16 +1,16 @@
-package com.example.cricketstats.infrastructure.persistence.competition;
+package com.blackcat.cricketstats.infrastructure.persistence.competition;
 
-import com.example.cricketstats.domain.competition.Competition;
-import com.example.cricketstats.domain.competition.CompetitionRepository;
-import com.example.cricketstats.jooq.tables.records.CompetitionRecord;
+import com.blackcat.cricketstats.domain.competition.Competition;
+import com.blackcat.cricketstats.domain.competition.CompetitionRepository;
+import com.blackcat.cricketstats.jooq.tables.records.CompetitionRecord;
 import org.jooq.DSLContext;
 import org.springframework.stereotype.Repository;
 
-import static com.example.cricketstats.jooq.Tables.COMPETITION;
+import static com.blackcat.cricketstats.jooq.Tables.COMPETITION;
 
 @Repository
 public class JooqCompetitionRepository implements CompetitionRepository {
-    
+
     private final DSLContext dsl;
 
     public JooqCompetitionRepository(DSLContext dsl) {

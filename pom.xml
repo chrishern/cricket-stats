@@ -13,7 +13,7 @@
 
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.example</groupId>
+    <groupId>com.blackcat</groupId>
     <artifactId>cricket-stats</artifactId>
     <version>1.0-SNAPSHOT</version>
     <packaging>jar</packaging>
@@ -218,7 +218,7 @@
                             <name>org.jooq.codegen.DefaultGeneratorStrategy</name>
                         </strategy>
                         <target>
-                            <packageName>com.example.cricketstats.jooq</packageName>
+                            <packageName>com.blackcat.cricketstats.jooq</packageName>
                             <directory>target/generated-sources/jooq</directory>
                         </target>
                     </generator>
