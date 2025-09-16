@@ -2,10 +2,11 @@ package com.example.cricketstats.infrastructure.persistence.competition;
 
 import com.example.cricketstats.domain.competition.Competition;
 import com.example.cricketstats.domain.competition.CompetitionRepository;
+import com.example.cricketstats.jooq.tables.records.CompetitionRecord;
 import org.jooq.DSLContext;
 import org.springframework.stereotype.Repository;
 
-import static org.jooq.impl.DSL.*;
+import static com.example.cricketstats.jooq.Tables.COMPETITION;
 
 @Repository
 public class JooqCompetitionRepository implements CompetitionRepository {
@@ -21,25 +22,22 @@ public class JooqCompetitionRepository implements CompetitionRepository {
         return dsl.transactionResult(configuration -> {
             var ctx = configuration.dsl();
 
-            int rowsAffected = ctx.insertInto(table("competition"))
-                    .set(field("format"), competition.getFormat().name())
-                    .set(field("start_year"), competition.getStartYear())
-                    .set(field("end_year"), competition.getEndYear())
-                    .set(field("country"), competition.getCountry() != null ? competition.getCountry().name() : null)
-                    .set(field("international"), competition.isInternational())
-                    .set(field("name"), competition.getName())
-                    .execute();
+            CompetitionRecord record = ctx.insertInto(COMPETITION)
+                    .set(COMPETITION.FORMAT, competition.getFormat().name())
+                    .set(COMPETITION.START_YEAR, competition.getStartYear())
+                    .set(COMPETITION.END_YEAR, competition.getEndYear())
+                    .set(COMPETITION.COUNTRY, competition.getCountry() != null ? competition.getCountry().name() : null)
+                    .set(COMPETITION.INTERNATIONAL, competition.isInternational())
+                    .set(COMPETITION.NAME, competition.getName())
+                    .returning(COMPETITION.ID)
+                    .fetchOne();
 
-            if (rowsAffected == 0) {
+            if (record == null) {
                 throw new RuntimeException("Failed to insert competition");
             }
 
-            Integer id = ctx.select(field("LAST_INSERT_ID()", Integer.class))
-                    .fetchOne()
-                    .value1();
-
             return new Competition(
-                    id,
+                    record.getId(),
                     competition.getFormat(),
                     competition.getStartYear(),
                     competition.getEndYear(),
