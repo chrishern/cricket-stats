@@ -13,6 +13,9 @@ public class CompetitionResponse {
     private boolean international;
     private String name;
 
+    public CompetitionResponse() {
+    }
+
     public CompetitionResponse(Competition competition) {
         this.id = competition.getId();
         this.format = competition.getFormat();
@@ -24,10 +27,23 @@ public class CompetitionResponse {
     }
 
     public Integer getId() { return id; }
+    public void setId(Integer id) { this.id = id; }
+
     public Format getFormat() { return format; }
+    public void setFormat(Format format) { this.format = format; }
+
     public String getStartYear() { return startYear; }
+    public void setStartYear(String startYear) { this.startYear = startYear; }
+
     public String getEndYear() { return endYear; }
+    public void setEndYear(String endYear) { this.endYear = endYear; }
+
     public Country getCountry() { return country; }
+    public void setCountry(Country country) { this.country = country; }
+
     public boolean isInternational() { return international; }
+    public void setInternational(boolean international) { this.international = international; }
+
     public String getName() { return name; }
+    public void setName(String name) { this.name = name; }
 }

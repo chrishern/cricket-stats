@@ -18,26 +18,36 @@ public class JooqCompetitionRepository implements CompetitionRepository {
 
     @Override
     public Competition save(Competition competition) {
-        Integer id = dsl.insertInto(table("competition"))
-                .set(field("format"), competition.getFormat().name())
-                .set(field("start_year"), competition.getStartYear())
-                .set(field("end_year"), competition.getEndYear())
-                .set(field("country"), competition.getCountry() != null ? competition.getCountry().name() : null)
-                .set(field("international"), competition.isInternational())
-                .set(field("name"), competition.getName())
-                .returningResult(field("id", Integer.class))
-                .fetchOne()
-                .value1();
+        return dsl.transactionResult(configuration -> {
+            var ctx = configuration.dsl();
 
-        return new Competition(
-                id,
-                competition.getFormat(),
-                competition.getStartYear(),
-                competition.getEndYear(),
-                competition.getCountry(),
-                competition.isInternational(),
-                competition.getName()
-        );
+            int rowsAffected = ctx.insertInto(table("competition"))
+                    .set(field("format"), competition.getFormat().name())
+                    .set(field("start_year"), competition.getStartYear())
+                    .set(field("end_year"), competition.getEndYear())
+                    .set(field("country"), competition.getCountry() != null ? competition.getCountry().name() : null)
+                    .set(field("international"), competition.isInternational())
+                    .set(field("name"), competition.getName())
+                    .execute();
+
+            if (rowsAffected == 0) {
+                throw new RuntimeException("Failed to insert competition");
+            }
+
+            Integer id = ctx.select(field("LAST_INSERT_ID()", Integer.class))
+                    .fetchOne()
+                    .value1();
+
+            return new Competition(
+                    id,
+                    competition.getFormat(),
+                    competition.getStartYear(),
+                    competition.getEndYear(),
+                    competition.getCountry(),
+                    competition.isInternational(),
+                    competition.getName()
+            );
+        });
     }
 
 }
