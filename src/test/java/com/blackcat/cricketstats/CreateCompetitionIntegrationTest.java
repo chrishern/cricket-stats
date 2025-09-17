@@ -1,7 +1,7 @@
 package com.blackcat.cricketstats;
 
 import com.blackcat.cricketstats.application.dto.CreateCompetitionRequest;
-import com.blackcat.cricketstats.application.dto.CompetitionResponse;
+import com.blackcat.cricketstats.application.dto.ErrorResponse;
 import com.blackcat.cricketstats.domain.competition.Format;
 import com.blackcat.cricketstats.domain.competition.Country;
 
@@ -113,10 +113,38 @@ public class CreateCompetitionIntegrationTest {
         var response = restTemplate.postForEntity(
                 "http://localhost:" + port + "/api/competitions",
                 request,
-                Void.class
+                ErrorResponse.class
         );
 
         // Then
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+        assertThat(response.getBody()).isNotNull();
+        assertThat(response.getBody().getError()).isNotNull();
+        assertThat(response.getBody().getError()).isEqualTo("Name is required");
+    }
+
+    @Test
+    public void shouldReturnBadRequestWhenNameIsNull() throws Exception {
+        // Given
+        var request = new CreateCompetitionRequest();
+        request.setFormat(Format.T_20);
+        request.setStartYear("2023");
+        request.setEndYear("2024");
+        request.setCountry(Country.ENGLAND);
+        request.setInternational(true);
+        request.setName(null);
+
+        // When
+        var response = restTemplate.postForEntity(
+                "http://localhost:" + port + "/api/competitions",
+                request,
+                ErrorResponse.class
+        );
+
+        // Then
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+        assertThat(response.getBody()).isNotNull();
+        assertThat(response.getBody().getError()).isNotNull();
+        assertThat(response.getBody().getError()).isEqualTo("Name is required");
     }
 }

@@ -1,12 +1,15 @@
 package com.blackcat.cricketstats.interface_layer.controller;
 
 import com.blackcat.cricketstats.application.dto.CreateCompetitionRequest;
+import com.blackcat.cricketstats.application.dto.ErrorResponse;
 import com.blackcat.cricketstats.application.service.CompetitionService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.validation.FieldError;
 import java.net.URI;
 
 @RestController
@@ -20,7 +23,7 @@ public class CompetitionController {
     }
 
     @PostMapping
-    public ResponseEntity<Void> createCompetition(@Valid @RequestBody CreateCompetitionRequest request) {
+    public ResponseEntity<?> createCompetition(@Valid @RequestBody CreateCompetitionRequest request) {
         try {
             Integer competitionId = competitionService.createCompetition(request);
 
@@ -29,7 +32,17 @@ public class CompetitionController {
 
             return new ResponseEntity<>(headers, HttpStatus.CREATED);
         } catch (IllegalArgumentException e) {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            ErrorResponse errorResponse = new ErrorResponse(e.getMessage());
+            
+            return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
         }
+    }
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<ErrorResponse> handleValidationErrors(MethodArgumentNotValidException ex) {
+        FieldError fieldError = ex.getBindingResult().getFieldErrors().get(0);
+        String errorMessage = fieldError.getDefaultMessage();
+        ErrorResponse errorResponse = new ErrorResponse(errorMessage);
+        return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
     }
 }

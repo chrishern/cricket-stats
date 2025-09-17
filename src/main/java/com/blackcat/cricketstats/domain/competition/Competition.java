@@ -23,6 +23,7 @@ public class Competition {
         if (!international && country == null) {
             throw new IllegalArgumentException("Country is required when international is false");
         }
+
         this.country = country;
 
         validateYears(startYear, endYear);
@@ -32,9 +33,11 @@ public class Competition {
         try {
             int start = Integer.parseInt(startYear);
             int end = Integer.parseInt(endYear);
+        
             if (start < 1800 || start > 3000 || end < 1800 || end > 3000) {
                 throw new IllegalArgumentException("Years must be between 1800 and 3000");
             }
+        
             if (start > end) {
                 throw new IllegalArgumentException("Start year cannot be after end year");
             }
