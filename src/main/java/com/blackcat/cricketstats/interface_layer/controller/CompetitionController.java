@@ -1,12 +1,13 @@
 package com.blackcat.cricketstats.interface_layer.controller;
 
 import com.blackcat.cricketstats.application.dto.CreateCompetitionRequest;
-import com.blackcat.cricketstats.application.dto.CompetitionResponse;
 import com.blackcat.cricketstats.application.service.CompetitionService;
 import jakarta.validation.Valid;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import java.net.URI;
 
 @RestController
 @RequestMapping("/api/competitions")
@@ -19,12 +20,16 @@ public class CompetitionController {
     }
 
     @PostMapping
-    public ResponseEntity<CompetitionResponse> createCompetition(@Valid @RequestBody CreateCompetitionRequest request) {
+    public ResponseEntity<Void> createCompetition(@Valid @RequestBody CreateCompetitionRequest request) {
         try {
-            CompetitionResponse response = competitionService.createCompetition(request);
-            return new ResponseEntity<>(response, HttpStatus.CREATED);
+            Integer competitionId = competitionService.createCompetition(request);
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.setLocation(URI.create("/api/competitions/" + competitionId));
+
+            return new ResponseEntity<>(headers, HttpStatus.CREATED);
         } catch (IllegalArgumentException e) {
-            return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
     }
 }

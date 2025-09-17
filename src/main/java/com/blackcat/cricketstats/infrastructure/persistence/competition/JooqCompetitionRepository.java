@@ -18,11 +18,11 @@ public class JooqCompetitionRepository implements CompetitionRepository {
     }
 
     @Override
-    public Competition save(Competition competition) {
+    public Integer save(Competition competition) {
         return dsl.transactionResult(configuration -> {
             var ctx = configuration.dsl();
 
-            CompetitionRecord record = ctx.insertInto(COMPETITION)
+            Integer competitionId = ctx.insertInto(COMPETITION)
                     .set(COMPETITION.FORMAT, competition.getFormat().name())
                     .set(COMPETITION.START_YEAR, competition.getStartYear())
                     .set(COMPETITION.END_YEAR, competition.getEndYear())
@@ -30,21 +30,13 @@ public class JooqCompetitionRepository implements CompetitionRepository {
                     .set(COMPETITION.INTERNATIONAL, competition.isInternational())
                     .set(COMPETITION.NAME, competition.getName())
                     .returning(COMPETITION.ID)
-                    .fetchOne();
+                    .fetchOne(COMPETITION.ID);
 
-            if (record == null) {
+            if (competitionId == null) {
                 throw new RuntimeException("Failed to insert competition");
             }
 
-            return new Competition(
-                    record.getId(),
-                    competition.getFormat(),
-                    competition.getStartYear(),
-                    competition.getEndYear(),
-                    competition.getCountry(),
-                    competition.isInternational(),
-                    competition.getName()
-            );
+            return competitionId;
         });
     }
 

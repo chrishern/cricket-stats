@@ -75,19 +75,14 @@ public class CreateCompetitionIntegrationTest {
         var response = restTemplate.postForEntity(
                 "http://localhost:" + port + "/api/competitions",
                 request,
-                CompetitionResponse.class
+                Void.class
         );
 
         // Then
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
-        assertThat(response.getBody()).isNotNull();
-        assertThat(response.getBody().getId()).isNotNull();
-        assertThat(response.getBody().getName()).isEqualTo("Test Competition");
-        assertThat(response.getBody().getFormat()).isEqualTo(Format.T_20);
-        assertThat(response.getBody().getStartYear()).isEqualTo("2023");
-        assertThat(response.getBody().getEndYear()).isEqualTo("2024");
-        assertThat(response.getBody().getCountry()).isEqualTo(Country.ENGLAND);
-        assertThat(response.getBody().isInternational()).isTrue();
+        assertThat(response.getBody()).isNull();
+        assertThat(response.getHeaders().getLocation()).isNotNull();
+        assertThat(response.getHeaders().getLocation().toString()).matches("/api/competitions/\\d+");
 
         try (Connection conn = mysql.createConnection("");
              Statement stmt = conn.createStatement();
@@ -118,7 +113,7 @@ public class CreateCompetitionIntegrationTest {
         var response = restTemplate.postForEntity(
                 "http://localhost:" + port + "/api/competitions",
                 request,
-                CompetitionResponse.class
+                Void.class
         );
 
         // Then
