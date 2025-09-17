@@ -1,4 +1,4 @@
-package com.blackcat.cricketstats.interface_layer.exception;
+package com.blackcat.cricketstats.inbound.adapter.exception;
 
 import com.blackcat.cricketstats.application.dto.ErrorResponse;
 import org.springframework.http.HttpStatus;

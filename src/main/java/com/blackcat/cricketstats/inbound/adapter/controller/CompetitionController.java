@@ -1,4 +1,4 @@
-package com.blackcat.cricketstats.interface_layer.controller;
+package com.blackcat.cricketstats.inbound.adapter.controller;
 
 import com.blackcat.cricketstats.application.dto.CreateCompetitionRequest;
 import com.blackcat.cricketstats.application.service.CompetitionService;
