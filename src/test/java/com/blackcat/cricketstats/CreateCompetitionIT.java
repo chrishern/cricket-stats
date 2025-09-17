@@ -27,7 +27,7 @@ import java.time.Duration;
 
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-public class CreateCompetitionIntegrationTest {
+public class CreateCompetitionIT {
 
     private static MySQLContainer<?> mysql = new MySQLContainer<>("mysql:9.1.0")
             .withDatabaseName("testdb")
