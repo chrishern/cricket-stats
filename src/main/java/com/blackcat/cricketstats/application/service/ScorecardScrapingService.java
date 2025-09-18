@@ -29,8 +29,37 @@ public class ScorecardScrapingService {
     }
 
     private String[] extractTeamNames(Document doc) {
-        String title = doc.title();
+        String htmlContent = doc.html();
 
+        String[] teamsFromJson = extractTeamNamesFromJson(htmlContent);
+        if (teamsFromJson != null) {
+            return teamsFromJson;
+        }
+
+        return extractTeamNamesFromTitle(doc.title());
+    }
+
+    private String[] extractTeamNamesFromJson(String htmlContent) {
+        String htmlTail = htmlContent.length() > 50000 ?
+            htmlContent.substring(htmlContent.length() - 50000) : htmlContent;
+
+        String homeTeamPattern = "\"homeTeam\":\\{[^}]*\"name\":\\{[^}]*\"fullName\":\"([^\"]*)\"[^}]*\\}";
+        String awayTeamPattern = "\"awayTeam\":\\{[^}]*\"name\":\\{[^}]*\"fullName\":\"([^\"]*)\"[^}]*\\}";
+
+        java.util.regex.Pattern homePattern = java.util.regex.Pattern.compile(homeTeamPattern);
+        java.util.regex.Pattern awayPattern = java.util.regex.Pattern.compile(awayTeamPattern);
+
+        java.util.regex.Matcher homeMatcher = homePattern.matcher(htmlTail);
+        java.util.regex.Matcher awayMatcher = awayPattern.matcher(htmlTail);
+
+        if (homeMatcher.find() && awayMatcher.find()) {
+            return new String[]{homeMatcher.group(1), awayMatcher.group(1)};
+        }
+
+        return null;
+    }
+
+    private String[] extractTeamNamesFromTitle(String title) {
         if (title.contains(" v ")) {
             String teamsPart = title.split(" - ")[0];
             String[] teams = teamsPart.split(" v ");
@@ -53,21 +82,64 @@ public class ScorecardScrapingService {
     private String extractMatchResult(Document doc) {
         String htmlContent = doc.html();
 
-        String[] resultPatterns = {"Match Drawn", "Match Won", "Match Tied", "No Result", "Abandoned"};
+        String resultFromJson = extractMatchResultFromJson(htmlContent);
+        if (resultFromJson != null) {
+            return resultFromJson;
+        }
 
-        for (String pattern : resultPatterns) {
-            if (htmlContent.contains(">" + pattern + "</")) {
-                return pattern;
-            }
-            if (htmlContent.contains("\"" + pattern + "\"")) {
-                return pattern;
-            }
-            if (htmlContent.contains(pattern)) {
-                return pattern;
-            }
+        String resultFromContent = extractMatchResultFromContent(htmlContent);
+        if (resultFromContent != null) {
+            return resultFromContent;
         }
 
         throw new RuntimeException("Could not extract match result from scorecard");
+    }
+
+    private String extractMatchResultFromContent(String htmlContent) {
+        java.util.regex.Pattern winByRunsPattern = java.util.regex.Pattern.compile("([A-Za-z\\s]+)\\s+win\\s+by\\s+(\\d+)\\s+runs?");
+        java.util.regex.Matcher runsMatcher = winByRunsPattern.matcher(htmlContent);
+        if (runsMatcher.find()) {
+            return runsMatcher.group(1).trim() + " win by " + runsMatcher.group(2) + " runs";
+        }
+
+        java.util.regex.Pattern winByWicketsPattern = java.util.regex.Pattern.compile("([A-Za-z\\s]+)\\s+win\\s+by\\s+(\\d+)\\s+wickets?");
+        java.util.regex.Matcher wicketsMatcher = winByWicketsPattern.matcher(htmlContent);
+        if (wicketsMatcher.find()) {
+            return wicketsMatcher.group(1).trim() + " win by " + wicketsMatcher.group(2) + " wickets";
+        }
+
+        if (htmlContent.toLowerCase().contains("match drawn")) {
+            return "Match Drawn";
+        }
+
+        if (htmlContent.toLowerCase().contains("match tied")) {
+            return "Match Tied";
+        }
+
+        if (htmlContent.toLowerCase().contains("no result")) {
+            return "No Result";
+        }
+
+        if (htmlContent.toLowerCase().contains("abandoned")) {
+            return "Abandoned";
+        }
+
+        return null;
+    }
+
+    private String extractMatchResultFromJson(String htmlContent) {
+        String htmlTail = htmlContent.length() > 50000 ?
+            htmlContent.substring(htmlContent.length() - 50000) : htmlContent;
+
+        String resultPattern = "\"resultString\":\"([^\"]*)\"";
+        java.util.regex.Pattern pattern = java.util.regex.Pattern.compile(resultPattern);
+        java.util.regex.Matcher matcher = pattern.matcher(htmlTail);
+
+        if (matcher.find()) {
+            return matcher.group(1);
+        }
+
+        return null;
     }
 
     public static class ScorecardData {
