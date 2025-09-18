@@ -1,0 +1,1 @@
+CREATE INDEX idx_competition_name ON competition(name);
