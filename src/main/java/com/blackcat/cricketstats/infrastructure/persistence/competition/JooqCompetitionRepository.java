@@ -2,7 +2,6 @@ package com.blackcat.cricketstats.infrastructure.persistence.competition;
 
 import com.blackcat.cricketstats.domain.competition.Competition;
 import com.blackcat.cricketstats.domain.competition.CompetitionRepository;
-import com.blackcat.cricketstats.jooq.tables.records.CompetitionRecord;
 import org.jooq.DSLContext;
 import org.springframework.stereotype.Repository;
 
