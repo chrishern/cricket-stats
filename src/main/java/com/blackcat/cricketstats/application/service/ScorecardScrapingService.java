@@ -193,7 +193,10 @@ public class ScorecardScrapingService {
             String awayTeamName = awayTeam.get("name").asText();
             String resultString = match.get("resultString").asText();
 
-            return new ScorecardData(homeTeamName, awayTeamName, resultString);
+            JsonNode tournamentNameNode = sportHeaderData.get("tournamentName");
+            String competitionName = tournamentNameNode != null ? tournamentNameNode.asText() : null;
+
+            return new ScorecardData(homeTeamName, awayTeamName, resultString, competitionName);
 
         } catch (Exception e) {
             return null;
@@ -204,15 +207,18 @@ public class ScorecardScrapingService {
         private final String homeTeam;
         private final String awayTeam;
         private final String result;
+        private final String competitionName;
 
-        public ScorecardData(String homeTeam, String awayTeam, String result) {
+        public ScorecardData(String homeTeam, String awayTeam, String result, String competitionName) {
             this.homeTeam = homeTeam;
             this.awayTeam = awayTeam;
             this.result = result;
+            this.competitionName = competitionName;
         }
 
         public String getHomeTeam() { return homeTeam; }
         public String getAwayTeam() { return awayTeam; }
         public String getResult() { return result; }
+        public String getCompetitionName() { return competitionName; }
     }
 }

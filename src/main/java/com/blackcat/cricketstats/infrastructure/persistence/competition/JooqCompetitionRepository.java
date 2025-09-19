@@ -2,8 +2,13 @@ package com.blackcat.cricketstats.infrastructure.persistence.competition;
 
 import com.blackcat.cricketstats.domain.competition.Competition;
 import com.blackcat.cricketstats.domain.competition.CompetitionRepository;
+import com.blackcat.cricketstats.domain.competition.Country;
+import com.blackcat.cricketstats.domain.competition.Format;
 import org.jooq.DSLContext;
+import org.jooq.Record;
 import org.springframework.stereotype.Repository;
+
+import java.util.Optional;
 
 import static com.blackcat.cricketstats.jooq.Tables.COMPETITION;
 
@@ -37,6 +42,30 @@ public class JooqCompetitionRepository implements CompetitionRepository {
 
             return competitionId;
         });
+    }
+
+    @Override
+    public Optional<Competition> findByName(String name) {
+        Record record = dsl.select()
+                .from(COMPETITION)
+                .where(COMPETITION.NAME.eq(name))
+                .fetchOne();
+
+        if (record == null) {
+            return Optional.empty();
+        }
+
+        Competition competition = new Competition(
+                record.get(COMPETITION.ID),
+                Format.valueOf(record.get(COMPETITION.FORMAT)),
+                record.get(COMPETITION.START_YEAR),
+                record.get(COMPETITION.END_YEAR),
+                record.get(COMPETITION.COUNTRY) != null ? Country.valueOf(record.get(COMPETITION.COUNTRY)) : null,
+                record.get(COMPETITION.INTERNATIONAL),
+                record.get(COMPETITION.NAME)
+        );
+
+        return Optional.of(competition);
     }
 
 }

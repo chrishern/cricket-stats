@@ -1,6 +1,10 @@
 package com.blackcat.cricketstats.application.service;
 
 import com.blackcat.cricketstats.application.dto.CreateGameRequest;
+import com.blackcat.cricketstats.domain.competition.Competition;
+import com.blackcat.cricketstats.domain.competition.CompetitionRepository;
+import com.blackcat.cricketstats.domain.competition.Country;
+import com.blackcat.cricketstats.domain.competition.Format;
 import com.blackcat.cricketstats.domain.game.Game;
 import com.blackcat.cricketstats.domain.game.GameRepository;
 import com.blackcat.cricketstats.domain.team.Team;
@@ -14,12 +18,14 @@ public class GameService {
 
     private final GameRepository gameRepository;
     private final TeamRepository teamRepository;
+    private final CompetitionRepository competitionRepository;
     private final ScorecardScrapingService scorecardScrapingService;
 
     public GameService(GameRepository gameRepository, TeamRepository teamRepository,
-                      ScorecardScrapingService scorecardScrapingService) {
+                      CompetitionRepository competitionRepository, ScorecardScrapingService scorecardScrapingService) {
         this.gameRepository = gameRepository;
         this.teamRepository = teamRepository;
+        this.competitionRepository = competitionRepository;
         this.scorecardScrapingService = scorecardScrapingService;
     }
 
@@ -29,10 +35,11 @@ public class GameService {
 
         Integer homeTeamId = getOrCreateTeam(scorecardData.getHomeTeam());
         Integer awayTeamId = getOrCreateTeam(scorecardData.getAwayTeam());
+        Integer competitionId = getOrCreateCompetition(scorecardData.getCompetitionName());
 
         Game game = new Game(
                 null,
-                1,
+                competitionId,
                 homeTeamId,
                 awayTeamId,
                 scorecardData.getResult()
@@ -47,6 +54,29 @@ public class GameService {
                 .orElseGet(() -> {
                     Team newTeam = new Team(null, "England", false, teamName);
                     return teamRepository.save(newTeam);
+                });
+    }
+
+    private Integer getOrCreateCompetition(String competitionName) {
+        if (competitionName == null || competitionName.trim().isEmpty()) {
+            throw new IllegalArgumentException("Competition name is required but was not found in scorecard data");
+        }
+
+        return competitionRepository.findByName(competitionName)
+                .map(Competition::getId)
+                .orElseGet(() -> {
+                    // Create a new competition with default values
+                    // You may want to adjust these defaults based on your requirements
+                    Competition newCompetition = new Competition(
+                            null,
+                            Format.T_20, // Default format - you might want to make this configurable
+                            "2024", // Default start year - you might want to extract this from the data
+                            "2024", // Default end year - you might want to extract this from the data
+                            Country.ENGLAND, // Default country - you might want to make this configurable
+                            false, // Default to non-international
+                            competitionName
+                    );
+                    return competitionRepository.save(newCompetition);
                 });
     }
 }

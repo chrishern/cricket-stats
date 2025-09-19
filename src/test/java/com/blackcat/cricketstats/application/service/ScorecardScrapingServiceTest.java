@@ -21,6 +21,7 @@ public class ScorecardScrapingServiceTest {
         assertThat(result.getHomeTeam()).isEqualTo("Durham");
         assertThat(result.getAwayTeam()).isEqualTo("Worcestershire");
         assertThat(result.getResult()).isEqualTo("Match Drawn");
+        assertThat(result.getCompetitionName()).isEqualTo("Rothesay County Championship Division 1");
     }
 
     @Test
@@ -33,6 +34,7 @@ public class ScorecardScrapingServiceTest {
         assertThat(result.getHomeTeam()).isEqualTo("Somerset");
         assertThat(result.getAwayTeam()).isEqualTo("Hampshire");
         assertThat(result.getResult()).isEqualTo("Match Drawn");
+        assertThat(result.getCompetitionName()).isEqualTo("Rothesay County Championship Division 1");
     }
 
     @Test
@@ -45,6 +47,7 @@ public class ScorecardScrapingServiceTest {
         assertThat(result.getHomeTeam()).isEqualTo("Surrey");
         assertThat(result.getAwayTeam()).isEqualTo("Nottinghamshire");
         assertThat(result.getResult()).isEqualTo("Nottinghamshire win by 20 runs");
+        assertThat(result.getCompetitionName()).isEqualTo("Rothesay County Championship Division 1");
     }
 
     @Test
@@ -57,5 +60,6 @@ public class ScorecardScrapingServiceTest {
         assertThat(result.getHomeTeam()).isEqualTo("Gloucestershire");
         assertThat(result.getAwayTeam()).isEqualTo("Northamptonshire");
         assertThat(result.getResult()).isEqualTo("Gloucestershire win by 7 wickets");
+        assertThat(result.getCompetitionName()).isEqualTo("Rothesay County Championship Division 2");
     }
 }
