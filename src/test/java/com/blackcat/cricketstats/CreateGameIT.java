@@ -24,25 +24,13 @@ import java.time.Duration;
 
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-public class CreateGameIT {
-
-    private static MySQLContainer<?> mysql = new MySQLContainer<>("mysql:9.1.0")
-            .withDatabaseName("testdb")
-            .withUsername("test")
-            .withPassword("test")
-            .withEnv("MYSQL_ROOT_PASSWORD", "test")
-            .withStartupTimeout(Duration.ofMinutes(10));
+public class CreateGameIT extends AbstractIntegrationTest {
 
     @LocalServerPort
     private int port;
 
     @Autowired
     private TestRestTemplate restTemplate;
-
-    @BeforeAll
-    private static void setup() {
-        mysql.start();
-    }
 
     private void setupTestData() throws Exception {
         try (Connection conn = mysql.createConnection("");
@@ -53,29 +41,20 @@ public class CreateGameIT {
         }
     }
 
-    @DynamicPropertySource
-    private static void configureProps(DynamicPropertyRegistry registry) {
-        registry.add("spring.datasource.url", mysql::getJdbcUrl);
-        registry.add("spring.datasource.username", mysql::getUsername);
-        registry.add("spring.datasource.password", mysql::getPassword);
-    }
-
-    @AfterAll
-    private static void teardown() {
-        mysql.stop();
-    }
-
     @Test
     public void shouldReturnBadRequestWhenScorecardUrlIsBlank() throws Exception {
+        // Given
         var request = new CreateGameRequest();
         request.setScorecardUrl("");
 
+        // When
         var response = restTemplate.postForEntity(
                 "http://localhost:" + port + "/api/games",
                 request,
                 ErrorResponse.class
         );
 
+        // Then
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
         assertThat(response.getBody()).isNotNull();
         assertThat(response.getBody().getError()).isNotNull();
@@ -84,15 +63,18 @@ public class CreateGameIT {
 
     @Test
     public void shouldReturnBadRequestWhenScorecardUrlIsNull() throws Exception {
+        // Given
         var request = new CreateGameRequest();
         request.setScorecardUrl(null);
 
+        // When
         var response = restTemplate.postForEntity(
                 "http://localhost:" + port + "/api/games",
                 request,
                 ErrorResponse.class
         );
 
+        // Then
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
         assertThat(response.getBody()).isNotNull();
         assertThat(response.getBody().getError()).isNotNull();
@@ -101,17 +83,20 @@ public class CreateGameIT {
 
     @Test
     public void shouldCreateGameSuccessfully() throws Exception {
+        // Given
         setupTestData();
 
         var request = new CreateGameRequest();
         request.setScorecardUrl("https://www.bbc.co.uk/sport/cricket/scorecard/e-225742");
 
+        // When
         var response = restTemplate.postForEntity(
                 "http://localhost:" + port + "/api/games",
                 request,
                 Void.class
         );
 
+        // Then
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
         assertThat(response.getBody()).isNull();
         assertThat(response.getHeaders().getLocation()).isNotNull();

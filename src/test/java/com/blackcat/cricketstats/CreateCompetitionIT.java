@@ -27,37 +27,13 @@ import java.time.Duration;
 
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-public class CreateCompetitionIT {
-
-    private static MySQLContainer<?> mysql = new MySQLContainer<>("mysql:9.1.0")
-            .withDatabaseName("testdb")
-            .withUsername("test")
-            .withPassword("test")
-            .withEnv("MYSQL_ROOT_PASSWORD", "test")
-            .withStartupTimeout(Duration.ofMinutes(10));
+public class CreateCompetitionIT extends AbstractIntegrationTest {
 
     @LocalServerPort
     private int port;
 
     @Autowired
     private TestRestTemplate restTemplate;
-
-    @BeforeAll
-    private static void setup() {
-        mysql.start();
-    }
-
-    @DynamicPropertySource
-    private static void configureProps(DynamicPropertyRegistry registry) {
-        registry.add("spring.datasource.url", mysql::getJdbcUrl);
-        registry.add("spring.datasource.username", mysql::getUsername);
-        registry.add("spring.datasource.password", mysql::getPassword);
-    }
-
-    @AfterAll
-    private static void teardown() {
-        mysql.stop();
-    }
 
     @Test
     public void shouldCreateCompetitionSuccessfully() throws Exception {
