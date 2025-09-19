@@ -1,11 +1,17 @@
 package com.blackcat.cricketstats.application.service;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
 import org.springframework.stereotype.Service;
 
 @Service
 public class ScorecardScrapingService {
+
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
     public ScorecardData scrapeScorecard(String url) {
         try {
@@ -17,128 +23,181 @@ public class ScorecardScrapingService {
                 doc = Jsoup.connect(url).get();
             }
 
-            String[] teamNames = extractTeamNames(doc);
-            String result = extractMatchResult(doc);
+            ScorecardData fromJson = extractFromJson(doc);
+            if (fromJson != null) {
+                return fromJson;
+            }
 
-            return new ScorecardData(teamNames[0], teamNames[1], result);
+            throw new RuntimeException("Could not find window.__INITIAL_DATA__ script tag or extract scorecard data from JSON");
 
         } catch (Exception e) {
             throw new RuntimeException("Failed to scrape scorecard from URL: " + url, e);
         }
     }
 
-    private String[] extractTeamNames(Document doc) {
-        String htmlContent = doc.html();
-
-        String[] teamsFromJson = extractTeamNamesFromJson(htmlContent);
-        if (teamsFromJson != null) {
-            return teamsFromJson;
-        }
-
-        return extractTeamNamesFromTitle(doc.title());
-    }
-
-    private String[] extractTeamNamesFromJson(String htmlContent) {
-        String htmlTail = htmlContent.length() > 50000 ?
-            htmlContent.substring(htmlContent.length() - 50000) : htmlContent;
-
-        String homeTeamPattern = "\"homeTeam\":\\{[^}]*\"name\":\\{[^}]*\"fullName\":\"([^\"]*)\"[^}]*\\}";
-        String awayTeamPattern = "\"awayTeam\":\\{[^}]*\"name\":\\{[^}]*\"fullName\":\"([^\"]*)\"[^}]*\\}";
-
-        java.util.regex.Pattern homePattern = java.util.regex.Pattern.compile(homeTeamPattern);
-        java.util.regex.Pattern awayPattern = java.util.regex.Pattern.compile(awayTeamPattern);
-
-        java.util.regex.Matcher homeMatcher = homePattern.matcher(htmlTail);
-        java.util.regex.Matcher awayMatcher = awayPattern.matcher(htmlTail);
-
-        if (homeMatcher.find() && awayMatcher.find()) {
-            return new String[]{homeMatcher.group(1), awayMatcher.group(1)};
-        }
-
-        return null;
-    }
-
-    private String[] extractTeamNamesFromTitle(String title) {
-        if (title.contains(" v ")) {
-            String teamsPart = title.split(" - ")[0];
-            String[] teams = teamsPart.split(" v ");
-            if (teams.length == 2) {
-                return new String[]{teams[0].trim(), teams[1].trim()};
+    private ScorecardData extractFromJson(Document doc) {
+        try {
+            Elements scriptElements = doc.select("script");
+            for (Element script : scriptElements) {
+                String scriptContent = script.html();
+                if (scriptContent.contains("window.__INITIAL_DATA__=")) {
+                    String jsonStr = extractJsonString(scriptContent);
+                    if (jsonStr != null) {
+                        return parseJsonData(jsonStr);
+                    }
+                }
             }
+        } catch (Exception e) {
+            // Fall through to return null
+        }
+        return null;
+    }
+
+    private String extractJsonString(String scriptContent) {
+        int startIndex = scriptContent.indexOf("window.__INITIAL_DATA__=");
+        if (startIndex == -1) {
+            return null;
         }
 
-        if (title.contains(" vs ")) {
-            String teamsPart = title.split(" - ")[0];
-            String[] teams = teamsPart.split(" vs ");
-            if (teams.length == 2) {
-                return new String[]{teams[0].trim(), teams[1].trim()};
+        startIndex += "window.__INITIAL_DATA__=".length();
+
+        if (startIndex >= scriptContent.length() || scriptContent.charAt(startIndex) != '"') {
+            return null;
+        }
+
+        // Skip the opening quote
+        startIndex++;
+
+        StringBuilder jsonBuilder = new StringBuilder();
+        boolean inEscape = false;
+
+        for (int i = startIndex; i < scriptContent.length(); i++) {
+            char c = scriptContent.charAt(i);
+
+            if (inEscape) {
+                // Handle escaped characters and unescape them
+                switch (c) {
+                    case '"':
+                        jsonBuilder.append('"');
+                        break;
+                    case '\\':
+                        jsonBuilder.append('\\');
+                        break;
+                    case '/':
+                        jsonBuilder.append('/');
+                        break;
+                    case 'b':
+                        jsonBuilder.append('\b');
+                        break;
+                    case 'f':
+                        jsonBuilder.append('\f');
+                        break;
+                    case 'n':
+                        jsonBuilder.append('\n');
+                        break;
+                    case 'r':
+                        jsonBuilder.append('\r');
+                        break;
+                    case 't':
+                        jsonBuilder.append('\t');
+                        break;
+                    case 'u':
+                        // Unicode escape - read the next 4 hex digits
+                        if (i + 4 < scriptContent.length()) {
+                            String hexDigits = scriptContent.substring(i + 1, i + 5);
+                            try {
+                                int codePoint = Integer.parseInt(hexDigits, 16);
+                                jsonBuilder.append((char) codePoint);
+                                i += 4; // Skip the 4 hex digits
+                            } catch (NumberFormatException e) {
+                                // Invalid unicode escape, just add the characters as-is
+                                jsonBuilder.append("\\u").append(hexDigits);
+                                i += 4;
+                            }
+                        } else {
+                            jsonBuilder.append("\\u");
+                        }
+                        break;
+                    default:
+                        // Unknown escape, keep the backslash
+                        jsonBuilder.append('\\').append(c);
+                        break;
+                }
+                inEscape = false;
+                continue;
             }
+
+            if (c == '\\') {
+                inEscape = true;
+                continue;
+            }
+
+            if (c == '"') {
+                // End of JSON string
+                break;
+            }
+
+            jsonBuilder.append(c);
         }
 
-        throw new RuntimeException("Could not extract team names from scorecard");
+        return jsonBuilder.toString();
     }
 
-    private String extractMatchResult(Document doc) {
-        String htmlContent = doc.html();
+    private ScorecardData parseJsonData(String jsonStr) {
+        try {
+            JsonNode rootNode = objectMapper.readTree(jsonStr);
+            JsonNode dataNode = rootNode.get("data");
+            if (dataNode == null) {
+                return null;
+            }
 
-        String resultFromJson = extractMatchResultFromJson(htmlContent);
-        if (resultFromJson != null) {
-            return resultFromJson;
+            JsonNode sportHeaderNode = null;
+            JsonNode cricketScorecardNode = null;
+
+            var fieldNames = dataNode.fieldNames();
+            while (fieldNames.hasNext()) {
+                String fieldName = fieldNames.next();
+                if (fieldName.startsWith("sport-header")) {
+                    sportHeaderNode = dataNode.get(fieldName);
+                } else if (fieldName.startsWith("cricket-scorecard")) {
+                    cricketScorecardNode = dataNode.get(fieldName);
+                }
+            }
+
+            if (sportHeaderNode == null || cricketScorecardNode == null) {
+                return null;
+            }
+
+            JsonNode sportHeaderData = sportHeaderNode.get("data");
+            JsonNode cricketScorecardData = cricketScorecardNode.get("data");
+
+            if (sportHeaderData == null || cricketScorecardData == null) {
+                return null;
+            }
+
+            JsonNode participants = sportHeaderData.get("participants");
+            JsonNode match = cricketScorecardData.get("match");
+
+            if (participants == null || match == null) {
+                return null;
+            }
+
+            JsonNode homeTeam = participants.get("homeTeam");
+            JsonNode awayTeam = participants.get("awayTeam");
+
+            if (homeTeam == null || awayTeam == null) {
+                return null;
+            }
+
+            String homeTeamName = homeTeam.get("name").asText();
+            String awayTeamName = awayTeam.get("name").asText();
+            String resultString = match.get("resultString").asText();
+
+            return new ScorecardData(homeTeamName, awayTeamName, resultString);
+
+        } catch (Exception e) {
+            return null;
         }
-
-        String resultFromContent = extractMatchResultFromContent(htmlContent);
-        if (resultFromContent != null) {
-            return resultFromContent;
-        }
-
-        throw new RuntimeException("Could not extract match result from scorecard");
-    }
-
-    private String extractMatchResultFromContent(String htmlContent) {
-        java.util.regex.Pattern winByRunsPattern = java.util.regex.Pattern.compile("([A-Za-z\\s]+)\\s+win\\s+by\\s+(\\d+)\\s+runs?");
-        java.util.regex.Matcher runsMatcher = winByRunsPattern.matcher(htmlContent);
-        if (runsMatcher.find()) {
-            return runsMatcher.group(1).trim() + " win by " + runsMatcher.group(2) + " runs";
-        }
-
-        java.util.regex.Pattern winByWicketsPattern = java.util.regex.Pattern.compile("([A-Za-z\\s]+)\\s+win\\s+by\\s+(\\d+)\\s+wickets?");
-        java.util.regex.Matcher wicketsMatcher = winByWicketsPattern.matcher(htmlContent);
-        if (wicketsMatcher.find()) {
-            return wicketsMatcher.group(1).trim() + " win by " + wicketsMatcher.group(2) + " wickets";
-        }
-
-        if (htmlContent.toLowerCase().contains("match drawn")) {
-            return "Match Drawn";
-        }
-
-        if (htmlContent.toLowerCase().contains("match tied")) {
-            return "Match Tied";
-        }
-
-        if (htmlContent.toLowerCase().contains("no result")) {
-            return "No Result";
-        }
-
-        if (htmlContent.toLowerCase().contains("abandoned")) {
-            return "Abandoned";
-        }
-
-        return null;
-    }
-
-    private String extractMatchResultFromJson(String htmlContent) {
-        String htmlTail = htmlContent.length() > 50000 ?
-            htmlContent.substring(htmlContent.length() - 50000) : htmlContent;
-
-        String resultPattern = "\"resultString\":\"([^\"]*)\"";
-        java.util.regex.Pattern pattern = java.util.regex.Pattern.compile(resultPattern);
-        java.util.regex.Matcher matcher = pattern.matcher(htmlTail);
-
-        if (matcher.find()) {
-            return matcher.group(1);
-        }
-
-        return null;
     }
 
     public static class ScorecardData {
