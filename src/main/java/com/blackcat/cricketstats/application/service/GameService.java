@@ -12,6 +12,9 @@ import com.blackcat.cricketstats.domain.team.TeamRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+
 @Service
 @Transactional
 public class GameService {
@@ -37,12 +40,15 @@ public class GameService {
         Integer awayTeamId = getOrCreateTeam(scorecardData.getAwayTeam());
         Integer competitionId = getOrCreateCompetition(scorecardData.getCompetitionName());
 
+        LocalDateTime startDateTime = parseStartDateTime(scorecardData.getStartDateTime());
+
         Game game = new Game(
                 null,
                 competitionId,
                 homeTeamId,
                 awayTeamId,
-                scorecardData.getResult()
+                scorecardData.getResult(),
+                startDateTime
         );
 
         return gameRepository.save(game);
@@ -78,5 +84,18 @@ public class GameService {
                     );
                     return competitionRepository.save(newCompetition);
                 });
+    }
+
+    private LocalDateTime parseStartDateTime(String startDateTimeString) {
+        if (startDateTimeString == null || startDateTimeString.trim().isEmpty()) {
+            return null;
+        }
+
+        try {
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+            return LocalDateTime.parse(startDateTimeString, formatter);
+        } catch (Exception e) {
+            return null;
+        }
     }
 }

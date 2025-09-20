@@ -1,5 +1,6 @@
 package com.blackcat.cricketstats.domain.game;
 
+import java.time.LocalDateTime;
 import java.util.Objects;
 
 public class Game {
@@ -8,13 +9,15 @@ public class Game {
     private Integer homeTeamId;
     private Integer awayTeamId;
     private String result;
+    private LocalDateTime startDateTime;
 
-    public Game(Integer id, Integer competitionId, Integer homeTeamId, Integer awayTeamId, String result) {
+    public Game(Integer id, Integer competitionId, Integer homeTeamId, Integer awayTeamId, String result, LocalDateTime startDateTime) {
         this.id = id;
         this.competitionId = Objects.requireNonNull(competitionId, "Competition ID cannot be null");
         this.homeTeamId = Objects.requireNonNull(homeTeamId, "Home team ID cannot be null");
         this.awayTeamId = Objects.requireNonNull(awayTeamId, "Away team ID cannot be null");
         this.result = Objects.requireNonNull(result, "Result cannot be null");
+        this.startDateTime = startDateTime;
 
         if (result.trim().isEmpty()) {
             throw new IllegalArgumentException("Result cannot be empty");
@@ -30,6 +33,7 @@ public class Game {
     public Integer getHomeTeamId() { return homeTeamId; }
     public Integer getAwayTeamId() { return awayTeamId; }
     public String getResult() { return result; }
+    public LocalDateTime getStartDateTime() { return startDateTime; }
 
     @Override
     public boolean equals(Object o) {

@@ -1,0 +1,1 @@
+ALTER TABLE game ADD COLUMN start_date_time TIMESTAMP NULL;

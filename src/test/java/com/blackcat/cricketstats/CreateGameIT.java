@@ -102,6 +102,8 @@ public class CreateGameIT extends AbstractIntegrationTest {
 
             int competitionId = gameRs.getInt("competition");
             assertThat(gameRs.getString("result")).isEqualTo("Match Drawn");
+            assertThat(gameRs.getTimestamp("start_date_time")).isNotNull();
+            assertThat(gameRs.getTimestamp("start_date_time").toString()).isEqualTo("2025-09-15 09:30:00.0");
 
             int homeTeamId = gameRs.getInt("home_team");
             int awayTeamId = gameRs.getInt("away_team");
@@ -162,6 +164,8 @@ public class CreateGameIT extends AbstractIntegrationTest {
             // Should use the existing competition (ID 1)
             assertThat(gameRs.getInt("competition")).isEqualTo(1);
             assertThat(gameRs.getString("result")).isEqualTo("Match Drawn");
+            assertThat(gameRs.getTimestamp("start_date_time")).isNotNull();
+            assertThat(gameRs.getTimestamp("start_date_time").toString()).isEqualTo("2025-09-15 09:30:00.0");
 
             int homeTeamId = gameRs.getInt("home_team");
             int awayTeamId = gameRs.getInt("away_team");
