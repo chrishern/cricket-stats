@@ -135,6 +135,23 @@ public class CreateGameIT extends AbstractIntegrationTest {
             assertThat(awayTeamRs.getString("country")).isEqualTo("England");
             assertThat(awayTeamRs.getBoolean("international")).isFalse();
             awayTeamRs.close();
+
+            // Verify players were created correctly
+            ResultSet playerCountRs = stmt.executeQuery("SELECT COUNT(*) as count FROM player");
+            assertThat(playerCountRs.next()).isTrue();
+            assertThat(playerCountRs.getInt("count")).isEqualTo(22); // 11 players per team
+            playerCountRs.close();
+
+            // Verify specific players exist
+            ResultSet alexLeesRs = stmt.executeQuery("SELECT * FROM player WHERE id = 12735");
+            assertThat(alexLeesRs.next()).isTrue();
+            assertThat(alexLeesRs.getString("full_name")).isEqualTo("Alex Lees");
+            alexLeesRs.close();
+
+            ResultSet jakeLibbyRs = stmt.executeQuery("SELECT * FROM player WHERE id = 30403");
+            assertThat(jakeLibbyRs.next()).isTrue();
+            assertThat(jakeLibbyRs.getString("full_name")).isEqualTo("Jake Libby");
+            jakeLibbyRs.close();
         }
     }
 
@@ -204,6 +221,23 @@ public class CreateGameIT extends AbstractIntegrationTest {
             assertThat(awayTeamRs.getString("country")).isEqualTo("England");
             assertThat(awayTeamRs.getBoolean("international")).isFalse();
             awayTeamRs.close();
+
+            // Verify players were created correctly
+            ResultSet playerCountRs = stmt.executeQuery("SELECT COUNT(*) as count FROM player");
+            assertThat(playerCountRs.next()).isTrue();
+            assertThat(playerCountRs.getInt("count")).isEqualTo(22); // 11 players per team
+            playerCountRs.close();
+
+            // Verify specific players exist
+            ResultSet alexLeesRs = stmt.executeQuery("SELECT * FROM player WHERE id = 12735");
+            assertThat(alexLeesRs.next()).isTrue();
+            assertThat(alexLeesRs.getString("full_name")).isEqualTo("Alex Lees");
+            alexLeesRs.close();
+
+            ResultSet jakeLibbyRs = stmt.executeQuery("SELECT * FROM player WHERE id = 30403");
+            assertThat(jakeLibbyRs.next()).isTrue();
+            assertThat(jakeLibbyRs.getString("full_name")).isEqualTo("Jake Libby");
+            jakeLibbyRs.close();
         }
     }
 }

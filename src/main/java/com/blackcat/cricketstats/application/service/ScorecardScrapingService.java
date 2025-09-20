@@ -8,6 +8,9 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+import java.util.ArrayList;
+
 @Service
 public class ScorecardScrapingService {
 
@@ -205,11 +208,55 @@ public class ScorecardScrapingService {
             JsonNode awayTeamIdNode = awayTeam.get("id");
             Integer awayTeamId = awayTeamIdNode != null ? awayTeamIdNode.asInt() : null;
 
-            return new ScorecardData(homeTeamName, awayTeamName, resultString, competitionName, startDateTime, homeTeamId, awayTeamId);
+            List<PlayerData> homeTeamPlayers = extractPlayers(cricketScorecardData.get("homeTeam"));
+            List<PlayerData> awayTeamPlayers = extractPlayers(cricketScorecardData.get("awayTeam"));
+
+            return new ScorecardData(homeTeamName, awayTeamName, resultString, competitionName, startDateTime, homeTeamId, awayTeamId, homeTeamPlayers, awayTeamPlayers);
 
         } catch (Exception e) {
             return null;
         }
+    }
+
+    private List<PlayerData> extractPlayers(JsonNode teamNode) {
+        List<PlayerData> players = new ArrayList<>();
+        if (teamNode == null) {
+            return players;
+        }
+
+        JsonNode playersNode = teamNode.get("players");
+        if (playersNode == null) {
+            return players;
+        }
+
+        JsonNode startersNode = playersNode.get("starters");
+        if (startersNode != null && startersNode.isArray()) {
+            for (JsonNode playerNode : startersNode) {
+                String idStr = playerNode.get("id").asText();
+                String displayName = playerNode.get("displayName").asText();
+                try {
+                    Integer playerId = Integer.parseInt(idStr);
+                    players.add(new PlayerData(playerId, displayName));
+                } catch (NumberFormatException e) {
+                    // Skip players with invalid IDs
+                }
+            }
+        }
+
+        return players;
+    }
+
+    public static class PlayerData {
+        private final Integer id;
+        private final String displayName;
+
+        public PlayerData(Integer id, String displayName) {
+            this.id = id;
+            this.displayName = displayName;
+        }
+
+        public Integer getId() { return id; }
+        public String getDisplayName() { return displayName; }
     }
 
     public static class ScorecardData {
@@ -220,8 +267,10 @@ public class ScorecardScrapingService {
         private final String startDateTime;
         private final Integer homeTeamId;
         private final Integer awayTeamId;
+        private final List<PlayerData> homeTeamPlayers;
+        private final List<PlayerData> awayTeamPlayers;
 
-        public ScorecardData(String homeTeam, String awayTeam, String result, String competitionName, String startDateTime, Integer homeTeamId, Integer awayTeamId) {
+        public ScorecardData(String homeTeam, String awayTeam, String result, String competitionName, String startDateTime, Integer homeTeamId, Integer awayTeamId, List<PlayerData> homeTeamPlayers, List<PlayerData> awayTeamPlayers) {
             this.homeTeam = homeTeam;
             this.awayTeam = awayTeam;
             this.result = result;
@@ -229,6 +278,8 @@ public class ScorecardScrapingService {
             this.startDateTime = startDateTime;
             this.homeTeamId = homeTeamId;
             this.awayTeamId = awayTeamId;
+            this.homeTeamPlayers = homeTeamPlayers != null ? homeTeamPlayers : new ArrayList<>();
+            this.awayTeamPlayers = awayTeamPlayers != null ? awayTeamPlayers : new ArrayList<>();
         }
 
         public String getHomeTeam() { return homeTeam; }
@@ -238,5 +289,7 @@ public class ScorecardScrapingService {
         public String getStartDateTime() { return startDateTime; }
         public Integer getHomeTeamId() { return homeTeamId; }
         public Integer getAwayTeamId() { return awayTeamId; }
+        public List<PlayerData> getHomeTeamPlayers() { return homeTeamPlayers; }
+        public List<PlayerData> getAwayTeamPlayers() { return awayTeamPlayers; }
     }
 }

@@ -7,6 +7,8 @@ import com.blackcat.cricketstats.domain.competition.Country;
 import com.blackcat.cricketstats.domain.competition.Format;
 import com.blackcat.cricketstats.domain.game.Game;
 import com.blackcat.cricketstats.domain.game.GameRepository;
+import com.blackcat.cricketstats.domain.player.Player;
+import com.blackcat.cricketstats.domain.player.PlayerRepository;
 import com.blackcat.cricketstats.domain.team.Team;
 import com.blackcat.cricketstats.domain.team.TeamRepository;
 import org.springframework.stereotype.Service;
@@ -14,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 
 @Service
 @Transactional
@@ -22,13 +25,15 @@ public class GameService {
     private final GameRepository gameRepository;
     private final TeamRepository teamRepository;
     private final CompetitionRepository competitionRepository;
+    private final PlayerRepository playerRepository;
     private final ScorecardScrapingService scorecardScrapingService;
 
     public GameService(GameRepository gameRepository, TeamRepository teamRepository,
-                      CompetitionRepository competitionRepository, ScorecardScrapingService scorecardScrapingService) {
+                      CompetitionRepository competitionRepository, PlayerRepository playerRepository, ScorecardScrapingService scorecardScrapingService) {
         this.gameRepository = gameRepository;
         this.teamRepository = teamRepository;
         this.competitionRepository = competitionRepository;
+        this.playerRepository = playerRepository;
         this.scorecardScrapingService = scorecardScrapingService;
     }
 
@@ -39,6 +44,9 @@ public class GameService {
         Integer homeTeamId = getOrCreateTeam(scorecardData.getHomeTeamId(), scorecardData.getHomeTeam());
         Integer awayTeamId = getOrCreateTeam(scorecardData.getAwayTeamId(), scorecardData.getAwayTeam());
         Integer competitionId = getOrCreateCompetition(scorecardData.getCompetitionName());
+
+        savePlayers(scorecardData.getHomeTeamPlayers());
+        savePlayers(scorecardData.getAwayTeamPlayers());
 
         LocalDateTime startDateTime = parseStartDateTime(scorecardData.getStartDateTime());
 
@@ -101,5 +109,24 @@ public class GameService {
         } catch (Exception e) {
             return null;
         }
+    }
+
+    private void savePlayers(List<ScorecardScrapingService.PlayerData> playerDataList) {
+        for (ScorecardScrapingService.PlayerData playerData : playerDataList) {
+            getOrCreatePlayer(playerData.getId(), playerData.getDisplayName());
+        }
+    }
+
+    private Integer getOrCreatePlayer(Integer playerId, String fullName) {
+        if (playerId == null) {
+            throw new IllegalArgumentException("Player ID is required but was not found in scorecard data");
+        }
+
+        return playerRepository.findById(playerId)
+                .map(Player::getId)
+                .orElseGet(() -> {
+                    Player newPlayer = new Player(playerId, fullName);
+                    return playerRepository.save(newPlayer);
+                });
     }
 }

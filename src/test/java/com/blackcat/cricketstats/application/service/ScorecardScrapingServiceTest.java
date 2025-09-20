@@ -25,6 +25,18 @@ public class ScorecardScrapingServiceTest {
         assertThat(result.getStartDateTime()).isEqualTo("2025-09-15T09:30:00.000Z");
         assertThat(result.getHomeTeamId()).isEqualTo(1412);
         assertThat(result.getAwayTeamId()).isEqualTo(1634);
+
+        // Assert home team players (Durham)
+        assertThat(result.getHomeTeamPlayers()).hasSize(11);
+        assertThat(result.getHomeTeamPlayers().get(0).getId()).isEqualTo(12735);
+        assertThat(result.getHomeTeamPlayers().get(0).getDisplayName()).isEqualTo("Alex Lees");
+        assertThat(result.getHomeTeamPlayers().get(1).getId()).isEqualTo(71461);
+        assertThat(result.getHomeTeamPlayers().get(1).getDisplayName()).isEqualTo("Emilio Gay");
+
+        // Assert away team players (Worcestershire)
+        assertThat(result.getAwayTeamPlayers()).hasSize(11);
+        assertThat(result.getAwayTeamPlayers().get(0).getId()).isEqualTo(30403);
+        assertThat(result.getAwayTeamPlayers().get(0).getDisplayName()).isEqualTo("Jake Libby");
     }
 
     @Test
