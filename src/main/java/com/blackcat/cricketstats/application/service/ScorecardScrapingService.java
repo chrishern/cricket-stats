@@ -199,7 +199,13 @@ public class ScorecardScrapingService {
             JsonNode startDateTimeNode = match.get("startDateTime");
             String startDateTime = startDateTimeNode != null ? startDateTimeNode.asText() : null;
 
-            return new ScorecardData(homeTeamName, awayTeamName, resultString, competitionName, startDateTime);
+            JsonNode homeTeamIdNode = homeTeam.get("id");
+            Integer homeTeamId = homeTeamIdNode != null ? homeTeamIdNode.asInt() : null;
+
+            JsonNode awayTeamIdNode = awayTeam.get("id");
+            Integer awayTeamId = awayTeamIdNode != null ? awayTeamIdNode.asInt() : null;
+
+            return new ScorecardData(homeTeamName, awayTeamName, resultString, competitionName, startDateTime, homeTeamId, awayTeamId);
 
         } catch (Exception e) {
             return null;
@@ -212,13 +218,17 @@ public class ScorecardScrapingService {
         private final String result;
         private final String competitionName;
         private final String startDateTime;
+        private final Integer homeTeamId;
+        private final Integer awayTeamId;
 
-        public ScorecardData(String homeTeam, String awayTeam, String result, String competitionName, String startDateTime) {
+        public ScorecardData(String homeTeam, String awayTeam, String result, String competitionName, String startDateTime, Integer homeTeamId, Integer awayTeamId) {
             this.homeTeam = homeTeam;
             this.awayTeam = awayTeam;
             this.result = result;
             this.competitionName = competitionName;
             this.startDateTime = startDateTime;
+            this.homeTeamId = homeTeamId;
+            this.awayTeamId = awayTeamId;
         }
 
         public String getHomeTeam() { return homeTeam; }
@@ -226,5 +236,7 @@ public class ScorecardScrapingService {
         public String getResult() { return result; }
         public String getCompetitionName() { return competitionName; }
         public String getStartDateTime() { return startDateTime; }
+        public Integer getHomeTeamId() { return homeTeamId; }
+        public Integer getAwayTeamId() { return awayTeamId; }
     }
 }

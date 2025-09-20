@@ -36,8 +36,8 @@ public class GameService {
         ScorecardScrapingService.ScorecardData scorecardData =
             scorecardScrapingService.scrapeScorecard(request.getScorecardUrl());
 
-        Integer homeTeamId = getOrCreateTeam(scorecardData.getHomeTeam());
-        Integer awayTeamId = getOrCreateTeam(scorecardData.getAwayTeam());
+        Integer homeTeamId = getOrCreateTeam(scorecardData.getHomeTeamId(), scorecardData.getHomeTeam());
+        Integer awayTeamId = getOrCreateTeam(scorecardData.getAwayTeamId(), scorecardData.getAwayTeam());
         Integer competitionId = getOrCreateCompetition(scorecardData.getCompetitionName());
 
         LocalDateTime startDateTime = parseStartDateTime(scorecardData.getStartDateTime());
@@ -54,11 +54,15 @@ public class GameService {
         return gameRepository.save(game);
     }
 
-    private Integer getOrCreateTeam(String teamName) {
-        return teamRepository.findByName(teamName)
+    private Integer getOrCreateTeam(Integer teamId, String teamName) {
+        if (teamId == null) {
+            throw new IllegalArgumentException("Team ID is required but was not found in scorecard data");
+        }
+
+        return teamRepository.findById(teamId)
                 .map(Team::getId)
                 .orElseGet(() -> {
-                    Team newTeam = new Team(null, "England", false, teamName);
+                    Team newTeam = new Team(teamId, "England", false, teamName);
                     return teamRepository.save(newTeam);
                 });
     }

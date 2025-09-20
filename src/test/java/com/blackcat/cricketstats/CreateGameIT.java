@@ -118,6 +118,10 @@ public class CreateGameIT extends AbstractIntegrationTest {
             assertThat(competitionRs.getBoolean("international")).isFalse();
             competitionRs.close();
 
+            // Verify teams were created with correct IDs from JSON data
+            assertThat(homeTeamId).isEqualTo(1412);
+            assertThat(awayTeamId).isEqualTo(1634);
+
             ResultSet homeTeamRs = stmt.executeQuery("SELECT * FROM team WHERE id = " + homeTeamId);
             assertThat(homeTeamRs.next()).isTrue();
             assertThat(homeTeamRs.getString("name")).isEqualTo("Durham");
@@ -182,6 +186,10 @@ public class CreateGameIT extends AbstractIntegrationTest {
             assertThat(competitionRs.next()).isTrue();
             assertThat(competitionRs.getString("name")).isEqualTo("Rothesay County Championship Division 1");
             competitionRs.close();
+
+            // Verify teams were created with correct IDs from JSON data
+            assertThat(homeTeamId).isEqualTo(1412);
+            assertThat(awayTeamId).isEqualTo(1634);
 
             ResultSet homeTeamRs = stmt.executeQuery("SELECT * FROM team WHERE id = " + homeTeamId);
             assertThat(homeTeamRs.next()).isTrue();

@@ -23,18 +23,14 @@ public class JooqTeamRepository implements TeamRepository {
         return dsl.transactionResult(configuration -> {
             var ctx = configuration.dsl();
 
-            Integer teamId = ctx.insertInto(TEAM)
+            ctx.insertInto(TEAM)
+                    .set(TEAM.ID, team.getId())
                     .set(TEAM.COUNTRY, team.getCountry())
                     .set(TEAM.INTERNATIONAL, team.isInternational())
                     .set(TEAM.NAME, team.getName())
-                    .returning(TEAM.ID)
-                    .fetchOne(TEAM.ID);
+                    .execute();
 
-            if (teamId == null) {
-                throw new RuntimeException("Failed to insert team");
-            }
-
-            return teamId;
+            return team.getId();
         });
     }
 
@@ -42,6 +38,19 @@ public class JooqTeamRepository implements TeamRepository {
     public Optional<Team> findByName(String name) {
         return dsl.selectFrom(TEAM)
                 .where(TEAM.NAME.eq(name))
+                .fetchOptional()
+                .map(record -> new Team(
+                        record.getId(),
+                        record.getCountry(),
+                        record.getInternational(),
+                        record.getName()
+                ));
+    }
+
+    @Override
+    public Optional<Team> findById(Integer id) {
+        return dsl.selectFrom(TEAM)
+                .where(TEAM.ID.eq(id))
                 .fetchOptional()
                 .map(record -> new Team(
                         record.getId(),

@@ -23,6 +23,8 @@ public class ScorecardScrapingServiceTest {
         assertThat(result.getResult()).isEqualTo("Match Drawn");
         assertThat(result.getCompetitionName()).isEqualTo("Rothesay County Championship Division 1");
         assertThat(result.getStartDateTime()).isEqualTo("2025-09-15T09:30:00.000Z");
+        assertThat(result.getHomeTeamId()).isEqualTo(1412);
+        assertThat(result.getAwayTeamId()).isEqualTo(1634);
     }
 
     @Test
@@ -37,6 +39,8 @@ public class ScorecardScrapingServiceTest {
         assertThat(result.getResult()).isEqualTo("Match Drawn");
         assertThat(result.getCompetitionName()).isEqualTo("Rothesay County Championship Division 1");
         assertThat(result.getStartDateTime()).isEqualTo("2025-09-15T09:30:00.000Z");
+        assertThat(result.getHomeTeamId()).isEqualTo(1451);
+        assertThat(result.getAwayTeamId()).isEqualTo(1446);
     }
 
     @Test
@@ -51,6 +55,8 @@ public class ScorecardScrapingServiceTest {
         assertThat(result.getResult()).isEqualTo("Nottinghamshire win by 20 runs");
         assertThat(result.getCompetitionName()).isEqualTo("Rothesay County Championship Division 1");
         assertThat(result.getStartDateTime()).isEqualTo("2025-09-15T09:30:00.000Z");
+        assertThat(result.getHomeTeamId()).isEqualTo(1707);
+        assertThat(result.getAwayTeamId()).isEqualTo(1121);
     }
 
     @Test
@@ -65,5 +71,7 @@ public class ScorecardScrapingServiceTest {
         assertThat(result.getResult()).isEqualTo("Gloucestershire win by 7 wickets");
         assertThat(result.getCompetitionName()).isEqualTo("Rothesay County Championship Division 2");
         assertThat(result.getStartDateTime()).isEqualTo("2025-09-15T09:30:00.000Z");
+        assertThat(result.getHomeTeamId()).isEqualTo(2128);
+        assertThat(result.getAwayTeamId()).isEqualTo(1602);
     }
 }
