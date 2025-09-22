@@ -63,7 +63,9 @@ public class ScorecardScrapingServiceTest {
         ScorecardScrapingService.ScorecardData result = service.scrapeScorecard(filePath);
 
         // Verify that batting innings data is extracted
-        assertThat(result.getBattingInnings()).isNotEmpty();
+        // Based on the JSON data and team rosters, there should be 30 batting innings records
+        // (filtering from 42 total batting entries to only those players in team rosters)
+        assertThat(result.getBattingInnings()).hasSize(30);
 
         // Find a specific batting innings entry to test
         // Based on the JSON data, Tom Kohler-Cadmore (playerId: 15650) should have this record:
@@ -111,7 +113,9 @@ public class ScorecardScrapingServiceTest {
         ScorecardScrapingService.ScorecardData result = service.scrapeScorecard(filePath);
 
         // Verify that bowling innings data is extracted
-        assertThat(result.getBowlingInnings()).isNotEmpty();
+        // Based on the Durham vs Worcestershire JSON data and team rosters, there should be 15 bowling innings records
+        // (filtering from 15 total bowling entries to only those players in team rosters)
+        assertThat(result.getBowlingInnings()).hasSize(15);
 
         // Find a specific bowling innings entry to test
         // Based on the JSON data, Ben Raine (playerId: 17306) should have this record:

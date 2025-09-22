@@ -154,9 +154,11 @@ public class CreateGameIT extends AbstractIntegrationTest {
             jakeLibbyRs.close();
 
             // Verify batting innings were created correctly
+            // Based on the Durham vs Worcestershire JSON data, filtered by team rosters
+            // 19 batting innings are created (filtered from 26 total to only team players)
             ResultSet battingInningsCountRs = stmt.executeQuery("SELECT COUNT(*) as count FROM batting_innings");
             assertThat(battingInningsCountRs.next()).isTrue();
-            assertThat(battingInningsCountRs.getInt("count")).isGreaterThan(0);
+            assertThat(battingInningsCountRs.getInt("count")).isEqualTo(19);
             battingInningsCountRs.close();
 
             // Verify a specific batting innings entry (Alex Lees who has id 12735)
@@ -174,9 +176,10 @@ public class CreateGameIT extends AbstractIntegrationTest {
             alexLeesBattingRs.close();
 
             // Verify bowling innings were created correctly
+            // Based on the Durham vs Worcestershire JSON data, filtered by team rosters
             ResultSet bowlingInningsCountRs = stmt.executeQuery("SELECT COUNT(*) as count FROM bowling_innings");
             assertThat(bowlingInningsCountRs.next()).isTrue();
-            assertThat(bowlingInningsCountRs.getInt("count")).isGreaterThan(0);
+            assertThat(bowlingInningsCountRs.getInt("count")).isEqualTo(15);
             bowlingInningsCountRs.close();
 
             // Verify a specific bowling innings entry (Ben Raine who has id 17306)
@@ -284,9 +287,11 @@ public class CreateGameIT extends AbstractIntegrationTest {
             jakeLibbyRs.close();
 
             // Verify batting innings were created correctly
+            // Based on the Durham vs Worcestershire JSON data, filtered by team rosters
+            // 19 batting innings are created (filtered from 26 total to only team players)
             ResultSet battingInningsCountRs = stmt.executeQuery("SELECT COUNT(*) as count FROM batting_innings");
             assertThat(battingInningsCountRs.next()).isTrue();
-            assertThat(battingInningsCountRs.getInt("count")).isGreaterThan(0);
+            assertThat(battingInningsCountRs.getInt("count")).isEqualTo(19);
             battingInningsCountRs.close();
 
             // Verify a specific batting innings entry (Alex Lees who has id 12735)
@@ -304,9 +309,10 @@ public class CreateGameIT extends AbstractIntegrationTest {
             alexLeesBattingRs.close();
 
             // Verify bowling innings were created correctly
+            // Based on the Durham vs Worcestershire JSON data, filtered by team rosters
             ResultSet bowlingInningsCountRs = stmt.executeQuery("SELECT COUNT(*) as count FROM bowling_innings");
             assertThat(bowlingInningsCountRs.next()).isTrue();
-            assertThat(bowlingInningsCountRs.getInt("count")).isGreaterThan(0);
+            assertThat(bowlingInningsCountRs.getInt("count")).isEqualTo(15);
             bowlingInningsCountRs.close();
 
             // Verify a specific bowling innings entry (Ben Raine who has id 17306)
