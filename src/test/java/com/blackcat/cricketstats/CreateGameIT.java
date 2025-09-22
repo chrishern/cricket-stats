@@ -172,6 +172,30 @@ public class CreateGameIT extends AbstractIntegrationTest {
             assertThat(alexLeesBattingRs.getInt("minutes_batted")).isEqualTo(10);
             assertThat(alexLeesBattingRs.getDouble("strike_rate")).isEqualTo(100.00);
             alexLeesBattingRs.close();
+
+            // Verify bowling innings were created correctly
+            ResultSet bowlingInningsCountRs = stmt.executeQuery("SELECT COUNT(*) as count FROM bowling_innings");
+            assertThat(bowlingInningsCountRs.next()).isTrue();
+            assertThat(bowlingInningsCountRs.getInt("count")).isGreaterThan(0);
+            bowlingInningsCountRs.close();
+
+            // Verify a specific bowling innings entry (Ben Raine who has id 17306)
+            // Based on JSON data: overs=33.0, maidens=7, runs=81, wickets=2, dots=151, noBalls=0, wides=0, foursConceded=9, sixesConceded=0, economy=2.45, strikeRate=99.0
+            ResultSet benRaineBowlingRs = stmt.executeQuery(
+                "SELECT * FROM bowling_innings WHERE game = 1 AND player = 17306");
+            assertThat(benRaineBowlingRs.next()).isTrue();
+            assertThat(benRaineBowlingRs.getDouble("overs")).isEqualTo(33.0);
+            assertThat(benRaineBowlingRs.getInt("maidens")).isEqualTo(7);
+            assertThat(benRaineBowlingRs.getInt("runs")).isEqualTo(81);
+            assertThat(benRaineBowlingRs.getInt("wickets")).isEqualTo(2);
+            assertThat(benRaineBowlingRs.getInt("dots")).isEqualTo(151);
+            assertThat(benRaineBowlingRs.getInt("no_balls")).isEqualTo(0);
+            assertThat(benRaineBowlingRs.getInt("wides")).isEqualTo(0);
+            assertThat(benRaineBowlingRs.getInt("fours_conceded")).isEqualTo(9);
+            assertThat(benRaineBowlingRs.getInt("sixes_conceded")).isEqualTo(0);
+            assertThat(benRaineBowlingRs.getDouble("economy")).isEqualTo(2.45);
+            assertThat(benRaineBowlingRs.getDouble("strike_rate")).isEqualTo(99.0);
+            benRaineBowlingRs.close();
         }
     }
 
@@ -278,6 +302,30 @@ public class CreateGameIT extends AbstractIntegrationTest {
             assertThat(alexLeesBattingRs.getInt("minutes_batted")).isEqualTo(10);
             assertThat(alexLeesBattingRs.getDouble("strike_rate")).isEqualTo(100.00);
             alexLeesBattingRs.close();
+
+            // Verify bowling innings were created correctly
+            ResultSet bowlingInningsCountRs = stmt.executeQuery("SELECT COUNT(*) as count FROM bowling_innings");
+            assertThat(bowlingInningsCountRs.next()).isTrue();
+            assertThat(bowlingInningsCountRs.getInt("count")).isGreaterThan(0);
+            bowlingInningsCountRs.close();
+
+            // Verify a specific bowling innings entry (Ben Raine who has id 17306)
+            // Based on JSON data: overs=33.0, maidens=7, runs=81, wickets=2, dots=151, noBalls=0, wides=0, foursConceded=9, sixesConceded=0, economy=2.45, strikeRate=99.0
+            ResultSet benRaineBowlingRs = stmt.executeQuery(
+                "SELECT * FROM bowling_innings WHERE game = 1 AND player = 17306");
+            assertThat(benRaineBowlingRs.next()).isTrue();
+            assertThat(benRaineBowlingRs.getDouble("overs")).isEqualTo(33.0);
+            assertThat(benRaineBowlingRs.getInt("maidens")).isEqualTo(7);
+            assertThat(benRaineBowlingRs.getInt("runs")).isEqualTo(81);
+            assertThat(benRaineBowlingRs.getInt("wickets")).isEqualTo(2);
+            assertThat(benRaineBowlingRs.getInt("dots")).isEqualTo(151);
+            assertThat(benRaineBowlingRs.getInt("no_balls")).isEqualTo(0);
+            assertThat(benRaineBowlingRs.getInt("wides")).isEqualTo(0);
+            assertThat(benRaineBowlingRs.getInt("fours_conceded")).isEqualTo(9);
+            assertThat(benRaineBowlingRs.getInt("sixes_conceded")).isEqualTo(0);
+            assertThat(benRaineBowlingRs.getDouble("economy")).isEqualTo(2.45);
+            assertThat(benRaineBowlingRs.getDouble("strike_rate")).isEqualTo(99.0);
+            benRaineBowlingRs.close();
         }
     }
 }

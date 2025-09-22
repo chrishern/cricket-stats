@@ -212,8 +212,9 @@ public class ScorecardScrapingService {
             List<PlayerData> awayTeamPlayers = extractPlayers(cricketScorecardData.get("awayTeam"));
 
             List<BattingInningsData> battingInnings = extractBattingInnings(cricketScorecardData, homeTeamPlayers, awayTeamPlayers);
+            List<BowlingInningsData> bowlingInnings = extractBowlingInnings(cricketScorecardData, homeTeamPlayers, awayTeamPlayers);
 
-            return new ScorecardData(homeTeamName, awayTeamName, resultString, competitionName, startDateTime, homeTeamId, awayTeamId, homeTeamPlayers, awayTeamPlayers, battingInnings);
+            return new ScorecardData(homeTeamName, awayTeamName, resultString, competitionName, startDateTime, homeTeamId, awayTeamId, homeTeamPlayers, awayTeamPlayers, battingInnings, bowlingInnings);
 
         } catch (Exception e) {
             return null;
@@ -307,6 +308,79 @@ public class ScorecardScrapingService {
         return battingInnings;
     }
 
+    private List<BowlingInningsData> extractBowlingInnings(JsonNode cricketScorecardData, List<PlayerData> homeTeamPlayers, List<PlayerData> awayTeamPlayers) {
+        List<BowlingInningsData> bowlingInnings = new ArrayList<>();
+
+        JsonNode inningsNode = cricketScorecardData.get("innings");
+        if (inningsNode == null || !inningsNode.isArray()) {
+            return bowlingInnings;
+        }
+
+        // Create a map of all players for quick lookup
+        var allPlayers = new ArrayList<PlayerData>();
+        allPlayers.addAll(homeTeamPlayers);
+        allPlayers.addAll(awayTeamPlayers);
+
+        for (JsonNode inning : inningsNode) {
+            JsonNode bowlingNode = inning.get("bowling");
+            if (bowlingNode != null && bowlingNode.isArray()) {
+                for (JsonNode bowlingEntry : bowlingNode) {
+                    try {
+                        JsonNode playerIdNode = bowlingEntry.get("playerId");
+                        if (playerIdNode == null) {
+                            continue;
+                        }
+
+                        Integer playerId = Integer.parseInt(playerIdNode.asText());
+
+                        // Check if this player exists in our player data
+                        boolean playerExists = allPlayers.stream()
+                            .anyMatch(player -> player.getId().equals(playerId));
+
+                        if (!playerExists) {
+                            continue;
+                        }
+
+                        Double overs = parseDoubleSafely(bowlingEntry.get("overs"));
+                        Integer maidens = parseIntegerSafely(bowlingEntry.get("maidens"));
+                        Integer runs = parseIntegerSafely(bowlingEntry.get("runsConceded"));
+                        Integer wickets = parseIntegerSafely(bowlingEntry.get("wickets"));
+                        Integer dots = parseIntegerSafely(bowlingEntry.get("dots"));
+                        Integer noBalls = parseIntegerSafely(bowlingEntry.get("noBalls"));
+                        Integer wides = parseIntegerSafely(bowlingEntry.get("wides"));
+                        Integer foursConceded = parseIntegerSafely(bowlingEntry.get("foursConceded"));
+                        Integer sixesConceded = parseIntegerSafely(bowlingEntry.get("sixesConceded"));
+                        Double economy = parseDoubleSafely(bowlingEntry.get("economyRate"));
+
+                        // Calculate strike rate: balls/wickets (where wickets is 0 then this doesn't apply)
+                        Double strikeRate = 0.0;
+                        JsonNode ballsNode = bowlingEntry.get("balls");
+                        if (ballsNode != null && wickets != null && wickets > 0) {
+                            Integer balls = parseIntegerSafely(ballsNode);
+                            if (balls != null) {
+                                strikeRate = (double) balls / wickets;
+                            }
+                        }
+
+                        if (overs != null && maidens != null && runs != null && wickets != null &&
+                            dots != null && noBalls != null && wides != null && foursConceded != null &&
+                            sixesConceded != null && economy != null) {
+
+                            bowlingInnings.add(new BowlingInningsData(
+                                playerId, overs, maidens, runs, wickets, dots, noBalls, wides,
+                                foursConceded, sixesConceded, economy, strikeRate
+                            ));
+                        }
+                    } catch (NumberFormatException e) {
+                        // Skip invalid player IDs
+                    }
+                }
+            }
+        }
+
+        return bowlingInnings;
+    }
+
     private Integer parseIntegerSafely(JsonNode node) {
         if (node == null || node.isNull()) return null;
         try {
@@ -377,6 +451,51 @@ public class ScorecardScrapingService {
         public Boolean getIsOut() { return isOut; }
     }
 
+    public static class BowlingInningsData {
+        private final Integer playerId;
+        private final Double overs;
+        private final Integer maidens;
+        private final Integer runs;
+        private final Integer wickets;
+        private final Integer dots;
+        private final Integer noBalls;
+        private final Integer wides;
+        private final Integer foursConceded;
+        private final Integer sixesConceded;
+        private final Double economy;
+        private final Double strikeRate;
+
+        public BowlingInningsData(Integer playerId, Double overs, Integer maidens, Integer runs, Integer wickets,
+                                 Integer dots, Integer noBalls, Integer wides, Integer foursConceded,
+                                 Integer sixesConceded, Double economy, Double strikeRate) {
+            this.playerId = playerId;
+            this.overs = overs;
+            this.maidens = maidens;
+            this.runs = runs;
+            this.wickets = wickets;
+            this.dots = dots;
+            this.noBalls = noBalls;
+            this.wides = wides;
+            this.foursConceded = foursConceded;
+            this.sixesConceded = sixesConceded;
+            this.economy = economy;
+            this.strikeRate = strikeRate;
+        }
+
+        public Integer getPlayerId() { return playerId; }
+        public Double getOvers() { return overs; }
+        public Integer getMaidens() { return maidens; }
+        public Integer getRuns() { return runs; }
+        public Integer getWickets() { return wickets; }
+        public Integer getDots() { return dots; }
+        public Integer getNoBalls() { return noBalls; }
+        public Integer getWides() { return wides; }
+        public Integer getFoursConceded() { return foursConceded; }
+        public Integer getSixesConceded() { return sixesConceded; }
+        public Double getEconomy() { return economy; }
+        public Double getStrikeRate() { return strikeRate; }
+    }
+
     public static class ScorecardData {
         private final String homeTeam;
         private final String awayTeam;
@@ -388,8 +507,9 @@ public class ScorecardScrapingService {
         private final List<PlayerData> homeTeamPlayers;
         private final List<PlayerData> awayTeamPlayers;
         private final List<BattingInningsData> battingInnings;
+        private final List<BowlingInningsData> bowlingInnings;
 
-        public ScorecardData(String homeTeam, String awayTeam, String result, String competitionName, String startDateTime, Integer homeTeamId, Integer awayTeamId, List<PlayerData> homeTeamPlayers, List<PlayerData> awayTeamPlayers, List<BattingInningsData> battingInnings) {
+        public ScorecardData(String homeTeam, String awayTeam, String result, String competitionName, String startDateTime, Integer homeTeamId, Integer awayTeamId, List<PlayerData> homeTeamPlayers, List<PlayerData> awayTeamPlayers, List<BattingInningsData> battingInnings, List<BowlingInningsData> bowlingInnings) {
             this.homeTeam = homeTeam;
             this.awayTeam = awayTeam;
             this.result = result;
@@ -400,6 +520,7 @@ public class ScorecardScrapingService {
             this.homeTeamPlayers = homeTeamPlayers != null ? homeTeamPlayers : new ArrayList<>();
             this.awayTeamPlayers = awayTeamPlayers != null ? awayTeamPlayers : new ArrayList<>();
             this.battingInnings = battingInnings != null ? battingInnings : new ArrayList<>();
+            this.bowlingInnings = bowlingInnings != null ? bowlingInnings : new ArrayList<>();
         }
 
         public String getHomeTeam() { return homeTeam; }
@@ -412,5 +533,6 @@ public class ScorecardScrapingService {
         public List<PlayerData> getHomeTeamPlayers() { return homeTeamPlayers; }
         public List<PlayerData> getAwayTeamPlayers() { return awayTeamPlayers; }
         public List<BattingInningsData> getBattingInnings() { return battingInnings; }
+        public List<BowlingInningsData> getBowlingInnings() { return bowlingInnings; }
     }
 }

@@ -104,6 +104,40 @@ public class ScorecardScrapingServiceTest {
     }
 
     @Test
+    public void shouldParseBowlingInningsDataFromDurhamVsWorcestershire() throws Exception {
+        File sampleFile = new ClassPathResource("samples/dur-worcs-sample-scorecard.html").getFile();
+        String filePath = sampleFile.getAbsolutePath();
+
+        ScorecardScrapingService.ScorecardData result = service.scrapeScorecard(filePath);
+
+        // Verify that bowling innings data is extracted
+        assertThat(result.getBowlingInnings()).isNotEmpty();
+
+        // Find a specific bowling innings entry to test
+        // Based on the JSON data, Ben Raine (playerId: 17306) should have this record:
+        // balls=198, overs=33.0, maidens=7, runs=81, wickets=2, dots=151, noBalls=0, wides=0, foursConceded=9, sixesConceded=0, economy=2.45
+        // strikeRate should be calculated as balls/wickets = 198/2 = 99.0
+        var benRaineBowlingInnings = result.getBowlingInnings().stream()
+            .filter(innings -> innings.getPlayerId().equals(17306))
+            .findFirst();
+
+        assertThat(benRaineBowlingInnings).isPresent();
+
+        var innings = benRaineBowlingInnings.get();
+        assertThat(innings.getOvers()).isEqualTo(33.0);
+        assertThat(innings.getMaidens()).isEqualTo(7);
+        assertThat(innings.getRuns()).isEqualTo(81);
+        assertThat(innings.getWickets()).isEqualTo(2);
+        assertThat(innings.getDots()).isEqualTo(151);
+        assertThat(innings.getNoBalls()).isEqualTo(0);
+        assertThat(innings.getWides()).isEqualTo(0);
+        assertThat(innings.getFoursConceded()).isEqualTo(9);
+        assertThat(innings.getSixesConceded()).isEqualTo(0);
+        assertThat(innings.getEconomy()).isEqualTo(2.45);
+        assertThat(innings.getStrikeRate()).isEqualTo(99.0);
+    }
+
+    @Test
     public void shouldParseSurreyVsNottinghamshireWinByRuns() throws Exception {
         File sampleFile = new ClassPathResource("samples/surrey-notts-sample-scorecard.html").getFile();
         String filePath = sampleFile.getAbsolutePath();
