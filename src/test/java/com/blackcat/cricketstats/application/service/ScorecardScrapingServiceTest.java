@@ -56,6 +56,54 @@ public class ScorecardScrapingServiceTest {
     }
 
     @Test
+    public void shouldParseBattingInningsDataFromSomersetVsHampshire() throws Exception {
+        File sampleFile = new ClassPathResource("samples/som-hants-sample-scorecard.html").getFile();
+        String filePath = sampleFile.getAbsolutePath();
+
+        ScorecardScrapingService.ScorecardData result = service.scrapeScorecard(filePath);
+
+        // Verify that batting innings data is extracted
+        assertThat(result.getBattingInnings()).isNotEmpty();
+
+        // Find a specific batting innings entry to test
+        // Based on the JSON data, Tom Kohler-Cadmore (playerId: 15650) should have this record:
+        // "runs": "10", "balls": "10", "dots": "6", "fours": "2", "sixes": "0", "minutes": "16", "strikeRate": "100.00", "isOut": true
+        var kohlerCadmoreBattingInnings = result.getBattingInnings().stream()
+            .filter(innings -> innings.getPlayerId().equals(15650))
+            .findFirst();
+
+        assertThat(kohlerCadmoreBattingInnings).isPresent();
+
+        var kohlerInnings = kohlerCadmoreBattingInnings.get();
+        assertThat(kohlerInnings.getRuns()).isEqualTo(10);
+        assertThat(kohlerInnings.getBalls()).isEqualTo(10);
+        assertThat(kohlerInnings.getDots()).isEqualTo(6);
+        assertThat(kohlerInnings.getFours()).isEqualTo(2);
+        assertThat(kohlerInnings.getSixes()).isEqualTo(0);
+        assertThat(kohlerInnings.getMinutes()).isEqualTo(16);
+        assertThat(kohlerInnings.getStrikeRate()).isEqualTo(100.00);
+        assertThat(kohlerInnings.getIsOut()).isTrue();
+
+        // Test another player - Ali Orr (playerId: 73795) should have an innings in the 2nd innings:
+        // "runs": "8", "balls": "24", "dots": "20", "fours": "1", "sixes": "0", "minutes": "23", "strikeRate": "33.33", "isOut": true
+        var orrBattingInnings = result.getBattingInnings().stream()
+            .filter(battingInnings -> battingInnings.getPlayerId().equals(73795) && battingInnings.getRuns().equals(8))
+            .findFirst();
+
+        assertThat(orrBattingInnings).isPresent();
+
+        var orrInnings = orrBattingInnings.get();
+        assertThat(orrInnings.getRuns()).isEqualTo(8);
+        assertThat(orrInnings.getBalls()).isEqualTo(24);
+        assertThat(orrInnings.getDots()).isEqualTo(20);
+        assertThat(orrInnings.getFours()).isEqualTo(1);
+        assertThat(orrInnings.getSixes()).isEqualTo(0);
+        assertThat(orrInnings.getMinutes()).isEqualTo(23);
+        assertThat(orrInnings.getStrikeRate()).isEqualTo(33.33);
+        assertThat(orrInnings.getIsOut()).isTrue();
+    }
+
+    @Test
     public void shouldParseSurreyVsNottinghamshireWinByRuns() throws Exception {
         File sampleFile = new ClassPathResource("samples/surrey-notts-sample-scorecard.html").getFile();
         String filePath = sampleFile.getAbsolutePath();

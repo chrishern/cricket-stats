@@ -1,6 +1,8 @@
 package com.blackcat.cricketstats.application.service;
 
 import com.blackcat.cricketstats.application.dto.CreateGameRequest;
+import com.blackcat.cricketstats.domain.battinginnings.BattingInnings;
+import com.blackcat.cricketstats.domain.battinginnings.BattingInningsRepository;
 import com.blackcat.cricketstats.domain.competition.Competition;
 import com.blackcat.cricketstats.domain.competition.CompetitionRepository;
 import com.blackcat.cricketstats.domain.competition.Country;
@@ -26,14 +28,17 @@ public class GameService {
     private final TeamRepository teamRepository;
     private final CompetitionRepository competitionRepository;
     private final PlayerRepository playerRepository;
+    private final BattingInningsRepository battingInningsRepository;
     private final ScorecardScrapingService scorecardScrapingService;
 
     public GameService(GameRepository gameRepository, TeamRepository teamRepository,
-                      CompetitionRepository competitionRepository, PlayerRepository playerRepository, ScorecardScrapingService scorecardScrapingService) {
+                      CompetitionRepository competitionRepository, PlayerRepository playerRepository,
+                      BattingInningsRepository battingInningsRepository, ScorecardScrapingService scorecardScrapingService) {
         this.gameRepository = gameRepository;
         this.teamRepository = teamRepository;
         this.competitionRepository = competitionRepository;
         this.playerRepository = playerRepository;
+        this.battingInningsRepository = battingInningsRepository;
         this.scorecardScrapingService = scorecardScrapingService;
     }
 
@@ -59,7 +64,11 @@ public class GameService {
                 startDateTime
         );
 
-        return gameRepository.save(game);
+        Integer gameId = gameRepository.save(game);
+
+        saveBattingInnings(gameId, scorecardData.getBattingInnings());
+
+        return gameId;
     }
 
     private Integer getOrCreateTeam(Integer teamId, String teamName) {
@@ -128,5 +137,24 @@ public class GameService {
                     Player newPlayer = new Player(playerId, fullName);
                     return playerRepository.save(newPlayer);
                 });
+    }
+
+    private void saveBattingInnings(Integer gameId, List<ScorecardScrapingService.BattingInningsData> battingInningsDataList) {
+        for (ScorecardScrapingService.BattingInningsData battingInningsData : battingInningsDataList) {
+            BattingInnings battingInnings = new BattingInnings(
+                null, // id will be auto-generated
+                gameId,
+                battingInningsData.getPlayerId(),
+                battingInningsData.getRuns(),
+                battingInningsData.getBalls(),
+                battingInningsData.getDots(),
+                battingInningsData.getFours(),
+                battingInningsData.getSixes(),
+                battingInningsData.getMinutes(),
+                battingInningsData.getStrikeRate()
+            );
+
+            battingInningsRepository.save(battingInnings);
+        }
     }
 }

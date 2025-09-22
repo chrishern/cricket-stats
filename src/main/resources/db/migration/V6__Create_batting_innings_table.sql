@@ -9,6 +9,7 @@ CREATE TABLE batting_innings (
     sixes_scored INT NOT NULL DEFAULT 0,
     minutes_batted INT NOT NULL DEFAULT 0,
     strike_rate DOUBLE NOT NULL DEFAULT 0.0,
+    not_out BOOLEAN NOT NULL DEFAULT FALSE,
     FOREIGN KEY (game) REFERENCES game(id),
     FOREIGN KEY (player) REFERENCES player(id)
 );

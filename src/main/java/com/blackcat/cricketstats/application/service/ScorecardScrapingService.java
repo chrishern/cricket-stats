@@ -211,7 +211,9 @@ public class ScorecardScrapingService {
             List<PlayerData> homeTeamPlayers = extractPlayers(cricketScorecardData.get("homeTeam"));
             List<PlayerData> awayTeamPlayers = extractPlayers(cricketScorecardData.get("awayTeam"));
 
-            return new ScorecardData(homeTeamName, awayTeamName, resultString, competitionName, startDateTime, homeTeamId, awayTeamId, homeTeamPlayers, awayTeamPlayers);
+            List<BattingInningsData> battingInnings = extractBattingInnings(cricketScorecardData, homeTeamPlayers, awayTeamPlayers);
+
+            return new ScorecardData(homeTeamName, awayTeamName, resultString, competitionName, startDateTime, homeTeamId, awayTeamId, homeTeamPlayers, awayTeamPlayers, battingInnings);
 
         } catch (Exception e) {
             return null;
@@ -246,6 +248,88 @@ public class ScorecardScrapingService {
         return players;
     }
 
+    private List<BattingInningsData> extractBattingInnings(JsonNode cricketScorecardData, List<PlayerData> homeTeamPlayers, List<PlayerData> awayTeamPlayers) {
+        List<BattingInningsData> battingInnings = new ArrayList<>();
+
+        JsonNode inningsNode = cricketScorecardData.get("innings");
+        if (inningsNode == null || !inningsNode.isArray()) {
+            return battingInnings;
+        }
+
+        // Create a map of all players for quick lookup
+        var allPlayers = new ArrayList<PlayerData>();
+        allPlayers.addAll(homeTeamPlayers);
+        allPlayers.addAll(awayTeamPlayers);
+
+        for (JsonNode inning : inningsNode) {
+            JsonNode battingNode = inning.get("batting");
+            if (battingNode != null && battingNode.isArray()) {
+                for (JsonNode battingEntry : battingNode) {
+                    try {
+                        JsonNode playerIdNode = battingEntry.get("playerId");
+                        if (playerIdNode == null) {
+                            continue;
+                        }
+
+                        Integer playerId = Integer.parseInt(playerIdNode.asText());
+
+                        // Check if this player exists in our player data
+                        boolean playerExists = allPlayers.stream()
+                            .anyMatch(player -> player.getId().equals(playerId));
+
+                        if (!playerExists) {
+                            continue;
+                        }
+
+                        Integer runs = parseIntegerSafely(battingEntry.get("runs"));
+                        Integer balls = parseIntegerSafely(battingEntry.get("balls"));
+                        Integer dots = parseIntegerSafely(battingEntry.get("dots"));
+                        Integer fours = parseIntegerSafely(battingEntry.get("fours"));
+                        Integer sixes = parseIntegerSafely(battingEntry.get("sixes"));
+                        Integer minutes = parseIntegerSafely(battingEntry.get("minutes"));
+                        Double strikeRate = parseDoubleSafely(battingEntry.get("strikeRate"));
+                        Boolean isOut = parseBooleanSafely(battingEntry.get("isOut"));
+
+                        if (runs != null && balls != null && dots != null && fours != null &&
+                            sixes != null && minutes != null && strikeRate != null && isOut != null) {
+
+                            battingInnings.add(new BattingInningsData(
+                                playerId, runs, balls, dots, fours, sixes, minutes, strikeRate, isOut
+                            ));
+                        }
+                    } catch (NumberFormatException e) {
+                        // Skip invalid player IDs
+                    }
+                }
+            }
+        }
+
+        return battingInnings;
+    }
+
+    private Integer parseIntegerSafely(JsonNode node) {
+        if (node == null || node.isNull()) return null;
+        try {
+            return Integer.parseInt(node.asText());
+        } catch (NumberFormatException e) {
+            return null;
+        }
+    }
+
+    private Double parseDoubleSafely(JsonNode node) {
+        if (node == null || node.isNull()) return null;
+        try {
+            return Double.parseDouble(node.asText());
+        } catch (NumberFormatException e) {
+            return null;
+        }
+    }
+
+    private Boolean parseBooleanSafely(JsonNode node) {
+        if (node == null || node.isNull()) return null;
+        return node.asBoolean();
+    }
+
     public static class PlayerData {
         private final Integer id;
         private final String displayName;
@@ -259,6 +343,40 @@ public class ScorecardScrapingService {
         public String getDisplayName() { return displayName; }
     }
 
+    public static class BattingInningsData {
+        private final Integer playerId;
+        private final Integer runs;
+        private final Integer balls;
+        private final Integer dots;
+        private final Integer fours;
+        private final Integer sixes;
+        private final Integer minutes;
+        private final Double strikeRate;
+        private final Boolean isOut;
+
+        public BattingInningsData(Integer playerId, Integer runs, Integer balls, Integer dots, Integer fours, Integer sixes, Integer minutes, Double strikeRate, Boolean isOut) {
+            this.playerId = playerId;
+            this.runs = runs;
+            this.balls = balls;
+            this.dots = dots;
+            this.fours = fours;
+            this.sixes = sixes;
+            this.minutes = minutes;
+            this.strikeRate = strikeRate;
+            this.isOut = isOut;
+        }
+
+        public Integer getPlayerId() { return playerId; }
+        public Integer getRuns() { return runs; }
+        public Integer getBalls() { return balls; }
+        public Integer getDots() { return dots; }
+        public Integer getFours() { return fours; }
+        public Integer getSixes() { return sixes; }
+        public Integer getMinutes() { return minutes; }
+        public Double getStrikeRate() { return strikeRate; }
+        public Boolean getIsOut() { return isOut; }
+    }
+
     public static class ScorecardData {
         private final String homeTeam;
         private final String awayTeam;
@@ -269,8 +387,9 @@ public class ScorecardScrapingService {
         private final Integer awayTeamId;
         private final List<PlayerData> homeTeamPlayers;
         private final List<PlayerData> awayTeamPlayers;
+        private final List<BattingInningsData> battingInnings;
 
-        public ScorecardData(String homeTeam, String awayTeam, String result, String competitionName, String startDateTime, Integer homeTeamId, Integer awayTeamId, List<PlayerData> homeTeamPlayers, List<PlayerData> awayTeamPlayers) {
+        public ScorecardData(String homeTeam, String awayTeam, String result, String competitionName, String startDateTime, Integer homeTeamId, Integer awayTeamId, List<PlayerData> homeTeamPlayers, List<PlayerData> awayTeamPlayers, List<BattingInningsData> battingInnings) {
             this.homeTeam = homeTeam;
             this.awayTeam = awayTeam;
             this.result = result;
@@ -280,6 +399,7 @@ public class ScorecardScrapingService {
             this.awayTeamId = awayTeamId;
             this.homeTeamPlayers = homeTeamPlayers != null ? homeTeamPlayers : new ArrayList<>();
             this.awayTeamPlayers = awayTeamPlayers != null ? awayTeamPlayers : new ArrayList<>();
+            this.battingInnings = battingInnings != null ? battingInnings : new ArrayList<>();
         }
 
         public String getHomeTeam() { return homeTeam; }
@@ -291,5 +411,6 @@ public class ScorecardScrapingService {
         public Integer getAwayTeamId() { return awayTeamId; }
         public List<PlayerData> getHomeTeamPlayers() { return homeTeamPlayers; }
         public List<PlayerData> getAwayTeamPlayers() { return awayTeamPlayers; }
+        public List<BattingInningsData> getBattingInnings() { return battingInnings; }
     }
 }

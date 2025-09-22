@@ -152,6 +152,26 @@ public class CreateGameIT extends AbstractIntegrationTest {
             assertThat(jakeLibbyRs.next()).isTrue();
             assertThat(jakeLibbyRs.getString("full_name")).isEqualTo("Jake Libby");
             jakeLibbyRs.close();
+
+            // Verify batting innings were created correctly
+            ResultSet battingInningsCountRs = stmt.executeQuery("SELECT COUNT(*) as count FROM batting_innings");
+            assertThat(battingInningsCountRs.next()).isTrue();
+            assertThat(battingInningsCountRs.getInt("count")).isGreaterThan(0);
+            battingInningsCountRs.close();
+
+            // Verify a specific batting innings entry (Alex Lees who has id 12735)
+            // Based on JSON data: runs=8, balls=8, dots=6, fours=2, sixes=0, minutes=10, strikeRate=100.00
+            ResultSet alexLeesBattingRs = stmt.executeQuery(
+                "SELECT * FROM batting_innings WHERE game = 1 AND player = 12735");
+            assertThat(alexLeesBattingRs.next()).isTrue();
+            assertThat(alexLeesBattingRs.getInt("runs")).isEqualTo(8);
+            assertThat(alexLeesBattingRs.getInt("balls")).isEqualTo(8);
+            assertThat(alexLeesBattingRs.getInt("dots")).isEqualTo(6);
+            assertThat(alexLeesBattingRs.getInt("fours_scored")).isEqualTo(2);
+            assertThat(alexLeesBattingRs.getInt("sixes_scored")).isEqualTo(0);
+            assertThat(alexLeesBattingRs.getInt("minutes_batted")).isEqualTo(10);
+            assertThat(alexLeesBattingRs.getDouble("strike_rate")).isEqualTo(100.00);
+            alexLeesBattingRs.close();
         }
     }
 
@@ -238,6 +258,26 @@ public class CreateGameIT extends AbstractIntegrationTest {
             assertThat(jakeLibbyRs.next()).isTrue();
             assertThat(jakeLibbyRs.getString("full_name")).isEqualTo("Jake Libby");
             jakeLibbyRs.close();
+
+            // Verify batting innings were created correctly
+            ResultSet battingInningsCountRs = stmt.executeQuery("SELECT COUNT(*) as count FROM batting_innings");
+            assertThat(battingInningsCountRs.next()).isTrue();
+            assertThat(battingInningsCountRs.getInt("count")).isGreaterThan(0);
+            battingInningsCountRs.close();
+
+            // Verify a specific batting innings entry (Alex Lees who has id 12735)
+            // Based on JSON data: runs=8, balls=8, dots=6, fours=2, sixes=0, minutes=10, strikeRate=100.00
+            ResultSet alexLeesBattingRs = stmt.executeQuery(
+                "SELECT * FROM batting_innings WHERE game = 1 AND player = 12735");
+            assertThat(alexLeesBattingRs.next()).isTrue();
+            assertThat(alexLeesBattingRs.getInt("runs")).isEqualTo(8);
+            assertThat(alexLeesBattingRs.getInt("balls")).isEqualTo(8);
+            assertThat(alexLeesBattingRs.getInt("dots")).isEqualTo(6);
+            assertThat(alexLeesBattingRs.getInt("fours_scored")).isEqualTo(2);
+            assertThat(alexLeesBattingRs.getInt("sixes_scored")).isEqualTo(0);
+            assertThat(alexLeesBattingRs.getInt("minutes_batted")).isEqualTo(10);
+            assertThat(alexLeesBattingRs.getDouble("strike_rate")).isEqualTo(100.00);
+            alexLeesBattingRs.close();
         }
     }
 }
