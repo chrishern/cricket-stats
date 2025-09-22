@@ -10,6 +10,7 @@ CREATE TABLE batting_competition_statistics (
     minutes_batted INT NOT NULL DEFAULT 0,
     strike_rate DOUBLE NOT NULL DEFAULT 0.0,
     average DOUBLE NOT NULL DEFAULT 0.0,
+    not_out BOOLEAN NOT NULL DEFAULT FALSE,
     FOREIGN KEY (competition) REFERENCES competition(id),
     FOREIGN KEY (player) REFERENCES player(id)
 );
