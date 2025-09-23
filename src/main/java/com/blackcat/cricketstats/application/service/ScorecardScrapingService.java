@@ -286,6 +286,7 @@ public class ScorecardScrapingService {
                             continue; // Player not found in either team
                         }
 
+                        Integer order = parseIntegerSafely(battingEntry.get("battingPosition"));
                         Integer runs = parseIntegerSafely(battingEntry.get("runs"));
                         Integer balls = parseIntegerSafely(battingEntry.get("balls"));
                         Integer dots = parseIntegerSafely(battingEntry.get("dots"));
@@ -295,11 +296,11 @@ public class ScorecardScrapingService {
                         Double strikeRate = parseDoubleSafely(battingEntry.get("strikeRate"));
                         Boolean isOut = parseBooleanSafely(battingEntry.get("isOut"));
 
-                        if (runs != null && balls != null && dots != null && fours != null &&
+                        if (order != null && runs != null && balls != null && dots != null && fours != null &&
                             sixes != null && minutes != null && strikeRate != null && isOut != null) {
 
                             battingInnings.add(new BattingInningsData(
-                                playerId, teamId, runs, balls, dots, fours, sixes, minutes, strikeRate, isOut
+                                playerId, teamId, order, runs, balls, dots, fours, sixes, minutes, strikeRate, isOut
                             ));
                         }
                     } catch (NumberFormatException e) {
@@ -349,6 +350,7 @@ public class ScorecardScrapingService {
                             continue; // Player not found in either team
                         }
 
+                        Integer order = parseIntegerSafely(bowlingEntry.get("position"));
                         Double overs = parseDoubleSafely(bowlingEntry.get("overs"));
                         Integer maidens = parseIntegerSafely(bowlingEntry.get("maidens"));
                         Integer runs = parseIntegerSafely(bowlingEntry.get("runsConceded"));
@@ -370,12 +372,12 @@ public class ScorecardScrapingService {
                             }
                         }
 
-                        if (overs != null && maidens != null && runs != null && wickets != null &&
+                        if (order != null && overs != null && maidens != null && runs != null && wickets != null &&
                             dots != null && noBalls != null && wides != null && foursConceded != null &&
                             sixesConceded != null && economy != null) {
 
                             bowlingInnings.add(new BowlingInningsData(
-                                playerId, teamId, overs, maidens, runs, wickets, dots, noBalls, wides,
+                                playerId, teamId, order, overs, maidens, runs, wickets, dots, noBalls, wides,
                                 foursConceded, sixesConceded, economy, strikeRate
                             ));
                         }
@@ -428,6 +430,7 @@ public class ScorecardScrapingService {
     public static class BattingInningsData {
         private final Integer playerId;
         private final Integer teamId;
+        private final Integer order;
         private final Integer runs;
         private final Integer balls;
         private final Integer dots;
@@ -437,9 +440,10 @@ public class ScorecardScrapingService {
         private final Double strikeRate;
         private final Boolean isOut;
 
-        public BattingInningsData(Integer playerId, Integer teamId, Integer runs, Integer balls, Integer dots, Integer fours, Integer sixes, Integer minutes, Double strikeRate, Boolean isOut) {
+        public BattingInningsData(Integer playerId, Integer teamId, Integer order, Integer runs, Integer balls, Integer dots, Integer fours, Integer sixes, Integer minutes, Double strikeRate, Boolean isOut) {
             this.playerId = playerId;
             this.teamId = teamId;
+            this.order = order;
             this.runs = runs;
             this.balls = balls;
             this.dots = dots;
@@ -452,6 +456,7 @@ public class ScorecardScrapingService {
 
         public Integer getPlayerId() { return playerId; }
         public Integer getTeamId() { return teamId; }
+        public Integer getOrder() { return order; }
         public Integer getRuns() { return runs; }
         public Integer getBalls() { return balls; }
         public Integer getDots() { return dots; }
@@ -465,6 +470,7 @@ public class ScorecardScrapingService {
     public static class BowlingInningsData {
         private final Integer playerId;
         private final Integer teamId;
+        private final Integer order;
         private final Double overs;
         private final Integer maidens;
         private final Integer runs;
@@ -477,11 +483,12 @@ public class ScorecardScrapingService {
         private final Double economy;
         private final Double strikeRate;
 
-        public BowlingInningsData(Integer playerId, Integer teamId, Double overs, Integer maidens, Integer runs, Integer wickets,
+        public BowlingInningsData(Integer playerId, Integer teamId, Integer order, Double overs, Integer maidens, Integer runs, Integer wickets,
                                  Integer dots, Integer noBalls, Integer wides, Integer foursConceded,
                                  Integer sixesConceded, Double economy, Double strikeRate) {
             this.playerId = playerId;
             this.teamId = teamId;
+            this.order = order;
             this.overs = overs;
             this.maidens = maidens;
             this.runs = runs;
@@ -497,6 +504,7 @@ public class ScorecardScrapingService {
 
         public Integer getPlayerId() { return playerId; }
         public Integer getTeamId() { return teamId; }
+        public Integer getOrder() { return order; }
         public Double getOvers() { return overs; }
         public Integer getMaidens() { return maidens; }
         public Integer getRuns() { return runs; }

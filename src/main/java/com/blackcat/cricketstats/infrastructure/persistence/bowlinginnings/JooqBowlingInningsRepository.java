@@ -25,6 +25,7 @@ public class JooqBowlingInningsRepository implements BowlingInningsRepository {
                     .set(BOWLING_INNINGS.GAME, bowlingInnings.getGameId())
                     .set(BOWLING_INNINGS.PLAYER, bowlingInnings.getPlayerId())
                     .set(BOWLING_INNINGS.TEAM_ID, bowlingInnings.getTeamId())
+                    .set(BOWLING_INNINGS.INNINGS_ORDER, bowlingInnings.getInningsOrder())
                     .set(BOWLING_INNINGS.OVERS, bowlingInnings.getOvers())
                     .set(BOWLING_INNINGS.MAIDENS, bowlingInnings.getMaidens())
                     .set(BOWLING_INNINGS.RUNS, bowlingInnings.getRuns())

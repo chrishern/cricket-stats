@@ -7,6 +7,7 @@ public class BowlingInnings {
     private Integer gameId;
     private Integer playerId;
     private Integer teamId;
+    private Integer inningsOrder;
     private Double overs;
     private Integer maidens;
     private Integer runs;
@@ -19,13 +20,14 @@ public class BowlingInnings {
     private Double economy;
     private Double strikeRate;
 
-    public BowlingInnings(Integer id, Integer gameId, Integer playerId, Integer teamId, Double overs, Integer maidens,
+    public BowlingInnings(Integer id, Integer gameId, Integer playerId, Integer teamId, Integer inningsOrder, Double overs, Integer maidens,
                          Integer runs, Integer wickets, Integer dots, Integer noBalls, Integer wides,
                          Integer foursConceded, Integer sixesConceded, Double economy, Double strikeRate) {
         this.id = id;
         this.gameId = Objects.requireNonNull(gameId, "Game ID cannot be null");
         this.playerId = Objects.requireNonNull(playerId, "Player ID cannot be null");
         this.teamId = Objects.requireNonNull(teamId, "Team ID cannot be null");
+        this.inningsOrder = Objects.requireNonNull(inningsOrder, "Innings order cannot be null");
         this.overs = Objects.requireNonNull(overs, "Overs cannot be null");
         this.maidens = Objects.requireNonNull(maidens, "Maidens cannot be null");
         this.runs = Objects.requireNonNull(runs, "Runs cannot be null");
@@ -71,12 +73,16 @@ public class BowlingInnings {
         if (strikeRate < 0) {
             throw new IllegalArgumentException("Strike rate cannot be negative");
         }
+        if (inningsOrder < 0) {
+            throw new IllegalArgumentException("Innings order cannot be negative");
+        }
     }
 
     public Integer getId() { return id; }
     public Integer getGameId() { return gameId; }
     public Integer getPlayerId() { return playerId; }
     public Integer getTeamId() { return teamId; }
+    public Integer getInningsOrder() { return inningsOrder; }
     public Double getOvers() { return overs; }
     public Integer getMaidens() { return maidens; }
     public Integer getRuns() { return runs; }

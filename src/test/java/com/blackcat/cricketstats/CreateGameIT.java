@@ -174,6 +174,7 @@ public class CreateGameIT extends AbstractIntegrationTest {
             assertThat(alexLeesBattingRs.getInt("minutes_batted")).isEqualTo(10);
             assertThat(alexLeesBattingRs.getDouble("strike_rate")).isEqualTo(100.00);
             assertThat(alexLeesBattingRs.getInt("team_id")).isEqualTo(1412); // Durham's team ID
+            assertThat(alexLeesBattingRs.getInt("innings_order")).isEqualTo(1); // Alex Lees has battingPosition: 1 in JSON
             alexLeesBattingRs.close();
 
             // Verify bowling innings were created correctly
@@ -200,6 +201,7 @@ public class CreateGameIT extends AbstractIntegrationTest {
             assertThat(benRaineBowlingRs.getDouble("economy")).isEqualTo(2.45);
             assertThat(benRaineBowlingRs.getDouble("strike_rate")).isEqualTo(99.0);
             assertThat(benRaineBowlingRs.getInt("team_id")).isEqualTo(1412); // Durham's team ID
+            assertThat(benRaineBowlingRs.getInt("innings_order")).isEqualTo(1); // Ben Raine has position: 1 in JSON
             benRaineBowlingRs.close();
         }
     }
@@ -309,6 +311,7 @@ public class CreateGameIT extends AbstractIntegrationTest {
             assertThat(alexLeesBattingRs.getInt("minutes_batted")).isEqualTo(10);
             assertThat(alexLeesBattingRs.getDouble("strike_rate")).isEqualTo(100.00);
             assertThat(alexLeesBattingRs.getInt("team_id")).isEqualTo(1412); // Durham's team ID
+            assertThat(alexLeesBattingRs.getInt("innings_order")).isEqualTo(1); // Alex Lees has battingPosition: 1 in JSON
             alexLeesBattingRs.close();
 
             // Verify bowling innings were created correctly
@@ -335,6 +338,7 @@ public class CreateGameIT extends AbstractIntegrationTest {
             assertThat(benRaineBowlingRs.getDouble("economy")).isEqualTo(2.45);
             assertThat(benRaineBowlingRs.getDouble("strike_rate")).isEqualTo(99.0);
             assertThat(benRaineBowlingRs.getInt("team_id")).isEqualTo(1412); // Durham's team ID
+            assertThat(benRaineBowlingRs.getInt("innings_order")).isEqualTo(1); // Ben Raine has position: 1 in JSON
             benRaineBowlingRs.close();
         }
     }
