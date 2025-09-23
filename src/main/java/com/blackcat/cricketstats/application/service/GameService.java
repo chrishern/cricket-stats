@@ -11,6 +11,7 @@ import com.blackcat.cricketstats.domain.competition.Country;
 import com.blackcat.cricketstats.domain.competition.Format;
 import com.blackcat.cricketstats.domain.game.Game;
 import com.blackcat.cricketstats.domain.game.GameRepository;
+import com.blackcat.cricketstats.domain.game.GameWithTeamNames;
 import com.blackcat.cricketstats.domain.player.Player;
 import com.blackcat.cricketstats.domain.player.PlayerRepository;
 import com.blackcat.cricketstats.domain.team.Team;
@@ -75,6 +76,10 @@ public class GameService {
         saveBowlingInnings(gameId, scorecardData.getBowlingInnings());
 
         return gameId;
+    }
+
+    public List<GameWithTeamNames> getGamesByCompetitionId(Integer competitionId) {
+        return gameRepository.findByCompetitionId(competitionId);
     }
 
     private Integer getOrCreateTeam(Integer teamId, String teamName) {

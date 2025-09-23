@@ -2,7 +2,9 @@ package com.blackcat.cricketstats.inbound.adapter.controller;
 
 import com.blackcat.cricketstats.application.dto.CreateCompetitionRequest;
 import com.blackcat.cricketstats.application.dto.CompetitionResponse;
+import com.blackcat.cricketstats.application.dto.GameResponse;
 import com.blackcat.cricketstats.application.service.CompetitionService;
+import com.blackcat.cricketstats.application.service.GameService;
 import java.util.List;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpHeaders;
@@ -16,9 +18,11 @@ import java.net.URI;
 public class CompetitionController {
 
     private final CompetitionService competitionService;
+    private final GameService gameService;
 
-    public CompetitionController(CompetitionService competitionService) {
+    public CompetitionController(CompetitionService competitionService, GameService gameService) {
         this.competitionService = competitionService;
+        this.gameService = gameService;
     }
 
     @PostMapping
@@ -39,5 +43,21 @@ public class CompetitionController {
                 .toList();
 
         return ResponseEntity.ok(competitions);
+    }
+
+    @GetMapping("/{competitionId}/games")
+    public ResponseEntity<List<GameResponse>> getGamesByCompetitionId(@PathVariable Integer competitionId) {
+        List<GameResponse> games = gameService.getGamesByCompetitionId(competitionId)
+                .stream()
+                .map(game -> new GameResponse(
+                        game.getId(),
+                        game.getHomeTeamName(),
+                        game.getAwayTeamName(),
+                        game.getStartDateTime(),
+                        game.getResult()
+                ))
+                .toList();
+
+        return ResponseEntity.ok(games);
     }
 }
