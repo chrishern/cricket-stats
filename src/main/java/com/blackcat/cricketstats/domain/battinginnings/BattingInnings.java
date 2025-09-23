@@ -6,6 +6,7 @@ public class BattingInnings {
     private Integer id;
     private Integer gameId;
     private Integer playerId;
+    private Integer teamId;
     private Integer runs;
     private Integer balls;
     private Integer dots;
@@ -14,12 +15,13 @@ public class BattingInnings {
     private Integer minutesBatted;
     private Double strikeRate;
 
-    public BattingInnings(Integer id, Integer gameId, Integer playerId, Integer runs, Integer balls,
+    public BattingInnings(Integer id, Integer gameId, Integer playerId, Integer teamId, Integer runs, Integer balls,
                          Integer dots, Integer foursScored, Integer sixesScored, Integer minutesBatted,
                          Double strikeRate) {
         this.id = id;
         this.gameId = Objects.requireNonNull(gameId, "Game ID cannot be null");
         this.playerId = Objects.requireNonNull(playerId, "Player ID cannot be null");
+        this.teamId = Objects.requireNonNull(teamId, "Team ID cannot be null");
         this.runs = Objects.requireNonNull(runs, "Runs cannot be null");
         this.balls = Objects.requireNonNull(balls, "Balls cannot be null");
         this.dots = Objects.requireNonNull(dots, "Dots cannot be null");
@@ -54,6 +56,7 @@ public class BattingInnings {
     public Integer getId() { return id; }
     public Integer getGameId() { return gameId; }
     public Integer getPlayerId() { return playerId; }
+    public Integer getTeamId() { return teamId; }
     public Integer getRuns() { return runs; }
     public Integer getBalls() { return balls; }
     public Integer getDots() { return dots; }

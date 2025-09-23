@@ -85,6 +85,7 @@ public class ScorecardScrapingServiceTest {
         assertThat(kohlerInnings.getMinutes()).isEqualTo(16);
         assertThat(kohlerInnings.getStrikeRate()).isEqualTo(100.00);
         assertThat(kohlerInnings.getIsOut()).isTrue();
+        assertThat(kohlerInnings.getTeamId()).isEqualTo(1451); // Somerset's team ID
 
         // Test another player - Ali Orr (playerId: 73795) should have an innings in the 2nd innings:
         // "runs": "8", "balls": "24", "dots": "20", "fours": "1", "sixes": "0", "minutes": "23", "strikeRate": "33.33", "isOut": true
@@ -103,6 +104,7 @@ public class ScorecardScrapingServiceTest {
         assertThat(orrInnings.getMinutes()).isEqualTo(23);
         assertThat(orrInnings.getStrikeRate()).isEqualTo(33.33);
         assertThat(orrInnings.getIsOut()).isTrue();
+        assertThat(orrInnings.getTeamId()).isEqualTo(1446); // Hampshire's team ID
     }
 
     @Test
@@ -139,6 +141,7 @@ public class ScorecardScrapingServiceTest {
         assertThat(innings.getSixesConceded()).isEqualTo(0);
         assertThat(innings.getEconomy()).isEqualTo(2.45);
         assertThat(innings.getStrikeRate()).isEqualTo(99.0);
+        assertThat(innings.getTeamId()).isEqualTo(1412); // Durham's team ID
     }
 
     @Test

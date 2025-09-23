@@ -156,6 +156,7 @@ public class GameService {
                 null, // id will be auto-generated
                 gameId,
                 battingInningsData.getPlayerId(),
+                battingInningsData.getTeamId(),
                 battingInningsData.getRuns(),
                 battingInningsData.getBalls(),
                 battingInningsData.getDots(),
@@ -175,6 +176,7 @@ public class GameService {
                 null, // id will be auto-generated
                 gameId,
                 bowlingInningsData.getPlayerId(),
+                bowlingInningsData.getTeamId(),
                 bowlingInningsData.getOvers(),
                 bowlingInningsData.getMaidens(),
                 bowlingInningsData.getRuns(),

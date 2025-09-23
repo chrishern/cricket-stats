@@ -24,6 +24,7 @@ public class JooqBattingInningsRepository implements BattingInningsRepository {
             var record = ctx.insertInto(BATTING_INNINGS)
                     .set(BATTING_INNINGS.GAME, battingInnings.getGameId())
                     .set(BATTING_INNINGS.PLAYER, battingInnings.getPlayerId())
+                    .set(BATTING_INNINGS.TEAM_ID, battingInnings.getTeamId())
                     .set(BATTING_INNINGS.RUNS, battingInnings.getRuns())
                     .set(BATTING_INNINGS.BALLS, battingInnings.getBalls())
                     .set(BATTING_INNINGS.DOTS, battingInnings.getDots())
