@@ -80,28 +80,36 @@ public class GetCompetitionGamesIT extends AbstractIntegrationTest {
         // Verify games are ordered by start_date_time (earliest first), then by home team name (alphabetical)
         // First: 2023-06-10 - Team C vs Team A
         assertThat(games.get(0).getId()).isEqualTo(2);
+        assertThat(games.get(0).getHomeTeamId()).isEqualTo(3);
         assertThat(games.get(0).getHomeTeamName()).isEqualTo("Team C");
+        assertThat(games.get(0).getAwayTeamId()).isEqualTo(1);
         assertThat(games.get(0).getAwayTeamName()).isEqualTo("Team A");
         assertThat(games.get(0).getResult()).isEqualTo("Team C won by 10 runs");
         assertThat(games.get(0).getStartDateTime()).isEqualTo("2023-06-10T11:00:00");
 
         // Second: 2023-06-15 - Team A vs Team B (alphabetically first by home team)
         assertThat(games.get(1).getId()).isEqualTo(1);
+        assertThat(games.get(1).getHomeTeamId()).isEqualTo(1);
         assertThat(games.get(1).getHomeTeamName()).isEqualTo("Team A");
+        assertThat(games.get(1).getAwayTeamId()).isEqualTo(2);
         assertThat(games.get(1).getAwayTeamName()).isEqualTo("Team B");
         assertThat(games.get(1).getResult()).isEqualTo("Team A won by 5 wickets");
         assertThat(games.get(1).getStartDateTime()).isEqualTo("2023-06-15T14:00:00");
 
         // Third: 2023-06-15 - Team B vs Team C (alphabetically second by home team)
         assertThat(games.get(2).getId()).isEqualTo(3);
+        assertThat(games.get(2).getHomeTeamId()).isEqualTo(2);
         assertThat(games.get(2).getHomeTeamName()).isEqualTo("Team B");
+        assertThat(games.get(2).getAwayTeamId()).isEqualTo(3);
         assertThat(games.get(2).getAwayTeamName()).isEqualTo("Team C");
         assertThat(games.get(2).getResult()).isEqualTo("Team B won by 2 wickets");
         assertThat(games.get(2).getStartDateTime()).isEqualTo("2023-06-15T14:00:00");
 
         // Fourth: null start_date_time - Team A vs Team C (should come last)
         assertThat(games.get(3).getId()).isEqualTo(4);
+        assertThat(games.get(3).getHomeTeamId()).isEqualTo(1);
         assertThat(games.get(3).getHomeTeamName()).isEqualTo("Team A");
+        assertThat(games.get(3).getAwayTeamId()).isEqualTo(3);
         assertThat(games.get(3).getAwayTeamName()).isEqualTo("Team C");
         assertThat(games.get(3).getResult()).isEqualTo("Team A won by 15 runs");
         assertThat(games.get(3).getStartDateTime()).isNull();

@@ -57,7 +57,9 @@ public class JooqGameRepository implements GameRepository {
         return dsl.select(
                 GAME.ID,
                 GAME.COMPETITION,
+                GAME.HOME_TEAM,
                 homeTeam.NAME,
+                GAME.AWAY_TEAM,
                 awayTeam.NAME,
                 GAME.RESULT,
                 org.jooq.impl.DSL.field("start_date_time")
@@ -73,7 +75,9 @@ public class JooqGameRepository implements GameRepository {
             .fetch(record -> new GameWithTeamNames(
                 record.get(GAME.ID),
                 record.get(GAME.COMPETITION),
+                record.get(GAME.HOME_TEAM),
                 record.get(homeTeam.NAME),
+                record.get(GAME.AWAY_TEAM),
                 record.get(awayTeam.NAME),
                 record.get(GAME.RESULT),
                 record.get(org.jooq.impl.DSL.field("start_date_time")) != null ?

@@ -51,7 +51,9 @@ public class CompetitionController {
                 .stream()
                 .map(game -> new GameResponse(
                         game.getId(),
+                        game.getHomeTeamId(),
                         game.getHomeTeamName(),
+                        game.getAwayTeamId(),
                         game.getAwayTeamName(),
                         game.getStartDateTime(),
                         game.getResult()
