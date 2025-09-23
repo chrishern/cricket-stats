@@ -8,6 +8,7 @@ import org.jooq.DSLContext;
 import org.jooq.Record;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 import static com.blackcat.cricketstats.jooq.Tables.COMPETITION;
@@ -66,6 +67,22 @@ public class JooqCompetitionRepository implements CompetitionRepository {
         );
 
         return Optional.of(competition);
+    }
+
+    @Override
+    public List<Competition> findAll() {
+        return dsl.select()
+                .from(COMPETITION)
+                .orderBy(COMPETITION.START_YEAR, COMPETITION.NAME)
+                .fetch(record -> new Competition(
+                        record.get(COMPETITION.ID),
+                        Format.valueOf(record.get(COMPETITION.FORMAT)),
+                        record.get(COMPETITION.START_YEAR),
+                        record.get(COMPETITION.END_YEAR),
+                        record.get(COMPETITION.COUNTRY) != null ? Country.valueOf(record.get(COMPETITION.COUNTRY)) : null,
+                        record.get(COMPETITION.INTERNATIONAL),
+                        record.get(COMPETITION.NAME)
+                ));
     }
 
 }

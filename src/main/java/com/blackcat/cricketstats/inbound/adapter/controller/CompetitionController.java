@@ -1,7 +1,9 @@
 package com.blackcat.cricketstats.inbound.adapter.controller;
 
 import com.blackcat.cricketstats.application.dto.CreateCompetitionRequest;
+import com.blackcat.cricketstats.application.dto.CompetitionResponse;
 import com.blackcat.cricketstats.application.service.CompetitionService;
+import java.util.List;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -27,5 +29,15 @@ public class CompetitionController {
         headers.setLocation(URI.create("/api/competitions/" + competitionId));
 
         return new ResponseEntity<>(headers, HttpStatus.CREATED);
+    }
+
+    @GetMapping
+    public ResponseEntity<List<CompetitionResponse>> getAllCompetitions() {
+        List<CompetitionResponse> competitions = competitionService.getAllCompetitions()
+                .stream()
+                .map(CompetitionResponse::new)
+                .toList();
+
+        return ResponseEntity.ok(competitions);
     }
 }
