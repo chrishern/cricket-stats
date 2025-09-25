@@ -1,0 +1,714 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Cricket Stats API",
+    "description": "API for managing cricket competitions, games, and player statistics",
+    "version": "1.0.0",
+    "contact": {
+      "name": "Cricket Stats Team"
+    }
+  },
+  "servers": [
+    {
+      "url": "http://localhost:8080",
+      "description": "Development server"
+    }
+  ],
+  "tags": [
+    {
+      "name": "Competitions",
+      "description": "Operations related to cricket competitions"
+    },
+    {
+      "name": "Games",
+      "description": "Operations related to cricket games and match statistics"
+    }
+  ],
+  "paths": {
+    "/api/competitions": {
+      "post": {
+        "tags": ["Competitions"],
+        "summary": "Create a new competition",
+        "description": "Creates a new cricket competition with the specified details",
+        "operationId": "createCompetition",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateCompetitionRequest"
+              },
+              "example": {
+                "format": "T_20",
+                "startYear": "2024",
+                "endYear": "2024",
+                "country": "ENGLAND",
+                "international": false,
+                "name": "County Championship T20"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Competition created successfully",
+            "headers": {
+              "Location": {
+                "description": "URL of the created competition",
+                "schema": {
+                  "type": "string",
+                  "example": "/api/competitions/1"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "tags": ["Competitions"],
+        "summary": "Get all competitions",
+        "description": "Retrieves a list of all cricket competitions",
+        "operationId": "getAllCompetitions",
+        "responses": {
+          "200": {
+            "description": "List of competitions",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CompetitionResponse"
+                  }
+                },
+                "example": [
+                  {
+                    "id": 1,
+                    "format": "T_20",
+                    "startYear": "2024",
+                    "endYear": "2024",
+                    "country": "ENGLAND",
+                    "international": false,
+                    "name": "County Championship T20"
+                  },
+                  {
+                    "id": 2,
+                    "format": "T_20",
+                    "startYear": "2024",
+                    "endYear": "2024",
+                    "country": "ENGLAND",
+                    "international": true,
+                    "name": "ICC World T20"
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/competitions/{competitionId}/games": {
+      "get": {
+        "tags": ["Competitions"],
+        "summary": "Get games by competition ID",
+        "description": "Retrieves all games for a specific competition, ordered by start date and team name",
+        "operationId": "getGamesByCompetitionId",
+        "parameters": [
+          {
+            "name": "competitionId",
+            "in": "path",
+            "required": true,
+            "description": "ID of the competition",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "example": 1
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of games in the competition",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/GameResponse"
+                  }
+                },
+                "example": [
+                  {
+                    "id": 1,
+                    "homeTeamId": 1,
+                    "homeTeamName": "Surrey",
+                    "awayTeamId": 2,
+                    "awayTeamName": "Kent",
+                    "startDateTime": "2024-06-15T14:00:00",
+                    "result": "Surrey won by 5 wickets"
+                  },
+                  {
+                    "id": 2,
+                    "homeTeamId": 3,
+                    "homeTeamName": "Essex",
+                    "awayTeamId": 1,
+                    "awayTeamName": "Surrey",
+                    "startDateTime": "2024-06-18T19:00:00",
+                    "result": "Essex won by 23 runs"
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/games": {
+      "post": {
+        "tags": ["Games"],
+        "summary": "Create a new game",
+        "description": "Creates a new cricket game by scraping data from a provided scorecard URL",
+        "operationId": "createGame",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateGameRequest"
+              },
+              "example": {
+                "scorecardUrl": "https://www.bbc.co.uk/sport/cricket/scorecard/example-match"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Game created successfully",
+            "headers": {
+              "Location": {
+                "description": "URL of the created game",
+                "schema": {
+                  "type": "string",
+                  "example": "/api/games/1"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/games/{gameId}/teams/{teamId}/statistics": {
+      "get": {
+        "tags": ["Games"],
+        "summary": "Get team statistics for a specific game",
+        "description": "Retrieves batting and bowling statistics for a specific team in a specific game",
+        "operationId": "getTeamStatistics",
+        "parameters": [
+          {
+            "name": "gameId",
+            "in": "path",
+            "required": true,
+            "description": "ID of the game",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "example": 1
+            }
+          },
+          {
+            "name": "teamId",
+            "in": "path",
+            "required": true,
+            "description": "ID of the team",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "example": 1
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Team statistics for the game",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TeamStatisticsResponse"
+                },
+                "example": {
+                  "bowling": [
+                    {
+                      "id": 1,
+                      "gameId": 1,
+                      "playerId": 1,
+                      "teamId": 1,
+                      "inningsOrder": 1,
+                      "overs": 4.0,
+                      "maidens": 1,
+                      "runs": 28,
+                      "wickets": 2,
+                      "dots": 15,
+                      "noBalls": 0,
+                      "wides": 1,
+                      "foursConceded": 3,
+                      "sixesConceded": 1,
+                      "economy": 7.0,
+                      "strikeRate": 12.0
+                    },
+                    {
+                      "id": 2,
+                      "gameId": 1,
+                      "playerId": 3,
+                      "teamId": 1,
+                      "inningsOrder": 2,
+                      "overs": 3.0,
+                      "maidens": 0,
+                      "runs": 22,
+                      "wickets": 1,
+                      "dots": 10,
+                      "noBalls": 1,
+                      "wides": 0,
+                      "foursConceded": 2,
+                      "sixesConceded": 1,
+                      "economy": 7.33,
+                      "strikeRate": 18.0
+                    }
+                  ],
+                  "batting": [
+                    {
+                      "id": 1,
+                      "gameId": 1,
+                      "playerId": 1,
+                      "teamId": 1,
+                      "inningsOrder": 1,
+                      "runs": 45,
+                      "balls": 32,
+                      "dots": 18,
+                      "foursScored": 4,
+                      "sixesScored": 1,
+                      "minutesBatted": 40,
+                      "strikeRate": 140.625
+                    },
+                    {
+                      "id": 2,
+                      "gameId": 1,
+                      "playerId": 2,
+                      "teamId": 1,
+                      "inningsOrder": 2,
+                      "runs": 23,
+                      "balls": 19,
+                      "dots": 12,
+                      "foursScored": 2,
+                      "sixesScored": 0,
+                      "minutesBatted": 25,
+                      "strikeRate": 121.05
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "CreateCompetitionRequest": {
+        "type": "object",
+        "required": ["format", "startYear", "endYear", "international", "name"],
+        "properties": {
+          "format": {
+            "$ref": "#/components/schemas/Format"
+          },
+          "startYear": {
+            "type": "string",
+            "description": "Start year of the competition",
+            "example": "2024"
+          },
+          "endYear": {
+            "type": "string",
+            "description": "End year of the competition",
+            "example": "2024"
+          },
+          "country": {
+            "$ref": "#/components/schemas/Country"
+          },
+          "international": {
+            "type": "boolean",
+            "description": "Whether this is an international competition",
+            "example": false
+          },
+          "name": {
+            "type": "string",
+            "description": "Name of the competition",
+            "minLength": 1,
+            "example": "County Championship T20"
+          }
+        }
+      },
+      "CompetitionResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Unique identifier of the competition",
+            "example": 1
+          },
+          "format": {
+            "$ref": "#/components/schemas/Format"
+          },
+          "startYear": {
+            "type": "string",
+            "description": "Start year of the competition",
+            "example": "2024"
+          },
+          "endYear": {
+            "type": "string",
+            "description": "End year of the competition",
+            "example": "2024"
+          },
+          "country": {
+            "$ref": "#/components/schemas/Country"
+          },
+          "international": {
+            "type": "boolean",
+            "description": "Whether this is an international competition",
+            "example": false
+          },
+          "name": {
+            "type": "string",
+            "description": "Name of the competition",
+            "example": "County Championship T20"
+          }
+        }
+      },
+      "CreateGameRequest": {
+        "type": "object",
+        "required": ["scorecardUrl"],
+        "properties": {
+          "scorecardUrl": {
+            "type": "string",
+            "description": "URL of the BBC scorecard to scrape game data from",
+            "minLength": 1,
+            "format": "uri",
+            "example": "https://www.bbc.co.uk/sport/cricket/scorecard/example-match"
+          }
+        }
+      },
+      "GameResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Unique identifier of the game",
+            "example": 1
+          },
+          "homeTeamId": {
+            "type": "integer",
+            "format": "int32",
+            "description": "ID of the home team",
+            "example": 1
+          },
+          "homeTeamName": {
+            "type": "string",
+            "description": "Name of the home team",
+            "example": "Surrey"
+          },
+          "awayTeamId": {
+            "type": "integer",
+            "format": "int32",
+            "description": "ID of the away team",
+            "example": 2
+          },
+          "awayTeamName": {
+            "type": "string",
+            "description": "Name of the away team",
+            "example": "Kent"
+          },
+          "startDateTime": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Start date and time of the game",
+            "example": "2024-06-15T14:00:00",
+            "nullable": true
+          },
+          "result": {
+            "type": "string",
+            "description": "Result of the game",
+            "example": "Surrey won by 5 wickets"
+          }
+        }
+      },
+      "TeamStatisticsResponse": {
+        "type": "object",
+        "properties": {
+          "bowling": {
+            "type": "array",
+            "description": "List of bowling innings for the team, ordered by innings order",
+            "items": {
+              "$ref": "#/components/schemas/BowlingInnings"
+            }
+          },
+          "batting": {
+            "type": "array",
+            "description": "List of batting innings for the team, ordered by innings order",
+            "items": {
+              "$ref": "#/components/schemas/BattingInnings"
+            }
+          }
+        }
+      },
+      "BowlingInnings": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Unique identifier of the bowling innings",
+            "example": 1
+          },
+          "gameId": {
+            "type": "integer",
+            "format": "int32",
+            "description": "ID of the game",
+            "example": 1
+          },
+          "playerId": {
+            "type": "integer",
+            "format": "int32",
+            "description": "ID of the player",
+            "example": 1
+          },
+          "teamId": {
+            "type": "integer",
+            "format": "int32",
+            "description": "ID of the team",
+            "example": 1
+          },
+          "inningsOrder": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Order in which player bowled in the innings",
+            "example": 1,
+            "minimum": 0
+          },
+          "overs": {
+            "type": "number",
+            "format": "double",
+            "description": "Number of overs bowled",
+            "example": 4.0,
+            "minimum": 0
+          },
+          "maidens": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Number of maiden overs",
+            "example": 1,
+            "minimum": 0
+          },
+          "runs": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Runs conceded",
+            "example": 28,
+            "minimum": 0
+          },
+          "wickets": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Number of wickets taken",
+            "example": 2,
+            "minimum": 0
+          },
+          "dots": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Number of dot balls bowled",
+            "example": 15,
+            "minimum": 0
+          },
+          "noBalls": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Number of no balls bowled",
+            "example": 0,
+            "minimum": 0
+          },
+          "wides": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Number of wides bowled",
+            "example": 1,
+            "minimum": 0
+          },
+          "foursConceded": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Number of fours conceded",
+            "example": 3,
+            "minimum": 0
+          },
+          "sixesConceded": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Number of sixes conceded",
+            "example": 1,
+            "minimum": 0
+          },
+          "economy": {
+            "type": "number",
+            "format": "double",
+            "description": "Economy rate (runs per over)",
+            "example": 7.0,
+            "minimum": 0
+          },
+          "strikeRate": {
+            "type": "number",
+            "format": "double",
+            "description": "Strike rate (balls per wicket)",
+            "example": 12.0,
+            "minimum": 0
+          }
+        }
+      },
+      "BattingInnings": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Unique identifier of the batting innings",
+            "example": 1
+          },
+          "gameId": {
+            "type": "integer",
+            "format": "int32",
+            "description": "ID of the game",
+            "example": 1
+          },
+          "playerId": {
+            "type": "integer",
+            "format": "int32",
+            "description": "ID of the player",
+            "example": 1
+          },
+          "teamId": {
+            "type": "integer",
+            "format": "int32",
+            "description": "ID of the team",
+            "example": 1
+          },
+          "inningsOrder": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Order in which player batted in the innings",
+            "example": 1,
+            "minimum": 0
+          },
+          "runs": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Runs scored",
+            "example": 45,
+            "minimum": 0
+          },
+          "balls": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Balls faced",
+            "example": 32,
+            "minimum": 0
+          },
+          "dots": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Number of dot balls faced",
+            "example": 18,
+            "minimum": 0
+          },
+          "foursScored": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Number of fours scored",
+            "example": 4,
+            "minimum": 0
+          },
+          "sixesScored": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Number of sixes scored",
+            "example": 1,
+            "minimum": 0
+          },
+          "minutesBatted": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Number of minutes batted",
+            "example": 40,
+            "minimum": 0
+          },
+          "strikeRate": {
+            "type": "number",
+            "format": "double",
+            "description": "Strike rate (runs per 100 balls)",
+            "example": 140.625,
+            "minimum": 0
+          }
+        }
+      },
+      "Format": {
+        "type": "string",
+        "enum": ["T_20"],
+        "description": "Format of cricket competition",
+        "example": "T_20"
+      },
+      "Country": {
+        "type": "string",
+        "enum": ["ENGLAND"],
+        "description": "Country where competition takes place",
+        "example": "ENGLAND"
+      },
+      "ErrorResponse": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string",
+            "description": "Error message describing what went wrong",
+            "example": "Invalid request data"
+          },
+          "details": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Additional details about the error",
+            "example": ["Name is required", "Format is required"]
+          }
+        }
+      }
+    }
+  }
+}
