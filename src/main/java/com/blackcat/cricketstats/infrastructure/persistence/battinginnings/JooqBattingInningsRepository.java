@@ -5,6 +5,8 @@ import com.blackcat.cricketstats.domain.battinginnings.BattingInningsRepository;
 import org.jooq.DSLContext;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
 import static com.blackcat.cricketstats.jooq.Tables.BATTING_INNINGS;
 
 @Repository
@@ -38,5 +40,27 @@ public class JooqBattingInningsRepository implements BattingInningsRepository {
 
             return record != null ? record.getId() : null;
         });
+    }
+
+    @Override
+    public List<BattingInnings> findByGameIdAndTeamId(Integer gameId, Integer teamId) {
+        return dsl.selectFrom(BATTING_INNINGS)
+                .where(BATTING_INNINGS.GAME.eq(gameId))
+                .and(BATTING_INNINGS.TEAM_ID.eq(teamId))
+                .orderBy(BATTING_INNINGS.INNINGS_ORDER)
+                .fetch(record -> new BattingInnings(
+                    record.getId(),
+                    record.getGame(),
+                    record.getPlayer(),
+                    record.getTeamId(),
+                    record.getInningsOrder(),
+                    record.getRuns(),
+                    record.getBalls(),
+                    record.getDots(),
+                    record.getFoursScored(),
+                    record.getSixesScored(),
+                    record.getMinutesBatted(),
+                    record.getStrikeRate()
+                ));
     }
 }

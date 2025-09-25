@@ -1,6 +1,7 @@
 package com.blackcat.cricketstats.inbound.adapter.controller;
 
 import com.blackcat.cricketstats.application.dto.CreateGameRequest;
+import com.blackcat.cricketstats.application.dto.TeamStatisticsResponse;
 import com.blackcat.cricketstats.application.service.GameService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpHeaders;
@@ -28,5 +29,12 @@ public class GameController {
         headers.setLocation(URI.create("/api/games/" + gameId));
 
         return new ResponseEntity<>(headers, HttpStatus.CREATED);
+    }
+
+    @GetMapping("/{gameId}/teams/{teamId}/statistics")
+    public ResponseEntity<TeamStatisticsResponse> getTeamStatistics(@PathVariable Integer gameId, @PathVariable Integer teamId) {
+        TeamStatisticsResponse statistics = gameService.getTeamStatistics(gameId, teamId);
+        
+        return ResponseEntity.ok(statistics);
     }
 }

@@ -1,6 +1,7 @@
 package com.blackcat.cricketstats.application.service;
 
 import com.blackcat.cricketstats.application.dto.CreateGameRequest;
+import com.blackcat.cricketstats.application.dto.TeamStatisticsResponse;
 import com.blackcat.cricketstats.domain.battinginnings.BattingInnings;
 import com.blackcat.cricketstats.domain.battinginnings.BattingInningsRepository;
 import com.blackcat.cricketstats.domain.bowlinginnings.BowlingInnings;
@@ -80,6 +81,13 @@ public class GameService {
 
     public List<GameWithTeamNames> getGamesByCompetitionId(Integer competitionId) {
         return gameRepository.findByCompetitionId(competitionId);
+    }
+
+    public TeamStatisticsResponse getTeamStatistics(Integer gameId, Integer teamId) {
+        List<BattingInnings> battingInnings = battingInningsRepository.findByGameIdAndTeamId(gameId, teamId);
+        List<BowlingInnings> bowlingInnings = bowlingInningsRepository.findByGameIdAndTeamId(gameId, teamId);
+
+        return new TeamStatisticsResponse(bowlingInnings, battingInnings);
     }
 
     private Integer getOrCreateTeam(Integer teamId, String teamName) {

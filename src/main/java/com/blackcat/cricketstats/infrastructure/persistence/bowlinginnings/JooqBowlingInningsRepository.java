@@ -5,6 +5,8 @@ import com.blackcat.cricketstats.domain.bowlinginnings.BowlingInningsRepository;
 import org.jooq.DSLContext;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
 import static com.blackcat.cricketstats.jooq.Tables.BOWLING_INNINGS;
 
 @Repository
@@ -42,5 +44,31 @@ public class JooqBowlingInningsRepository implements BowlingInningsRepository {
 
             return record != null ? record.getId() : null;
         });
+    }
+
+    @Override
+    public List<BowlingInnings> findByGameIdAndTeamId(Integer gameId, Integer teamId) {
+        return dsl.selectFrom(BOWLING_INNINGS)
+                .where(BOWLING_INNINGS.GAME.eq(gameId))
+                .and(BOWLING_INNINGS.TEAM_ID.eq(teamId))
+                .orderBy(BOWLING_INNINGS.INNINGS_ORDER)
+                .fetch(record -> new BowlingInnings(
+                    record.getId(),
+                    record.getGame(),
+                    record.getPlayer(),
+                    record.getTeamId(),
+                    record.getInningsOrder(),
+                    record.getOvers(),
+                    record.getMaidens(),
+                    record.getRuns(),
+                    record.getWickets(),
+                    record.getDots(),
+                    record.getNoBalls(),
+                    record.getWides(),
+                    record.getFoursConceded(),
+                    record.getSixesConceded(),
+                    record.getEconomy(),
+                    record.getStrikeRate()
+                ));
     }
 }
