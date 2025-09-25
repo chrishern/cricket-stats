@@ -261,6 +261,7 @@
                       "id": 1,
                       "gameId": 1,
                       "playerId": 1,
+                      "playerName": "John Smith",
                       "teamId": 1,
                       "inningsOrder": 1,
                       "overs": 4.0,
@@ -279,6 +280,7 @@
                       "id": 2,
                       "gameId": 1,
                       "playerId": 3,
+                      "playerName": "Mike Johnson",
                       "teamId": 1,
                       "inningsOrder": 2,
                       "overs": 3.0,
@@ -299,6 +301,7 @@
                       "id": 1,
                       "gameId": 1,
                       "playerId": 1,
+                      "playerName": "John Smith",
                       "teamId": 1,
                       "inningsOrder": 1,
                       "runs": 45,
@@ -313,6 +316,7 @@
                       "id": 2,
                       "gameId": 1,
                       "playerId": 2,
+                      "playerName": "David Wilson",
                       "teamId": 1,
                       "inningsOrder": 2,
                       "runs": 23,
@@ -469,19 +473,19 @@
             "type": "array",
             "description": "List of bowling innings for the team, ordered by innings order",
             "items": {
-              "$ref": "#/components/schemas/BowlingInnings"
+              "$ref": "#/components/schemas/BowlingInningsResponse"
             }
           },
           "batting": {
             "type": "array",
             "description": "List of batting innings for the team, ordered by innings order",
             "items": {
-              "$ref": "#/components/schemas/BattingInnings"
+              "$ref": "#/components/schemas/BattingInningsResponse"
             }
           }
         }
       },
-      "BowlingInnings": {
+      "BowlingInningsResponse": {
         "type": "object",
         "properties": {
           "id": {
@@ -501,6 +505,11 @@
             "format": "int32",
             "description": "ID of the player",
             "example": 1
+          },
+          "playerName": {
+            "type": "string",
+            "description": "Full name of the player",
+            "example": "John Smith"
           },
           "teamId": {
             "type": "integer",
@@ -594,7 +603,7 @@
           }
         }
       },
-      "BattingInnings": {
+      "BattingInningsResponse": {
         "type": "object",
         "properties": {
           "id": {
@@ -614,6 +623,11 @@
             "format": "int32",
             "description": "ID of the player",
             "example": 1
+          },
+          "playerName": {
+            "type": "string",
+            "description": "Full name of the player",
+            "example": "John Smith"
           },
           "teamId": {
             "type": "integer",

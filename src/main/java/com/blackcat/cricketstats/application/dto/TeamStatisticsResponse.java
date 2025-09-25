@@ -1,35 +1,32 @@
 package com.blackcat.cricketstats.application.dto;
 
-import com.blackcat.cricketstats.domain.battinginnings.BattingInnings;
-import com.blackcat.cricketstats.domain.bowlinginnings.BowlingInnings;
-
 import java.util.List;
 
 public class TeamStatisticsResponse {
-    private List<BowlingInnings> bowling;
-    private List<BattingInnings> batting;
+    private List<BowlingInningsResponse> bowling;
+    private List<BattingInningsResponse> batting;
 
     public TeamStatisticsResponse() {
     }
 
-    public TeamStatisticsResponse(List<BowlingInnings> bowling, List<BattingInnings> batting) {
+    public TeamStatisticsResponse(List<BowlingInningsResponse> bowling, List<BattingInningsResponse> batting) {
         this.bowling = bowling;
         this.batting = batting;
     }
 
-    public List<BowlingInnings> getBowling() {
+    public List<BowlingInningsResponse> getBowling() {
         return bowling;
     }
 
-    public void setBowling(List<BowlingInnings> bowling) {
+    public void setBowling(List<BowlingInningsResponse> bowling) {
         this.bowling = bowling;
     }
 
-    public List<BattingInnings> getBatting() {
+    public List<BattingInningsResponse> getBatting() {
         return batting;
     }
 
-    public void setBatting(List<BattingInnings> batting) {
+    public void setBatting(List<BattingInningsResponse> batting) {
         this.batting = batting;
     }
 }

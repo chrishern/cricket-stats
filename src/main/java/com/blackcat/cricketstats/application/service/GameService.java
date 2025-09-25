@@ -1,5 +1,7 @@
 package com.blackcat.cricketstats.application.service;
 
+import com.blackcat.cricketstats.application.dto.BattingInningsResponse;
+import com.blackcat.cricketstats.application.dto.BowlingInningsResponse;
 import com.blackcat.cricketstats.application.dto.CreateGameRequest;
 import com.blackcat.cricketstats.application.dto.TeamStatisticsResponse;
 import com.blackcat.cricketstats.domain.battinginnings.BattingInnings;
@@ -84,8 +86,8 @@ public class GameService {
     }
 
     public TeamStatisticsResponse getTeamStatistics(Integer gameId, Integer teamId) {
-        List<BattingInnings> battingInnings = battingInningsRepository.findByGameIdAndTeamId(gameId, teamId);
-        List<BowlingInnings> bowlingInnings = bowlingInningsRepository.findByGameIdAndTeamId(gameId, teamId);
+        List<BattingInningsResponse> battingInnings = battingInningsRepository.findWithPlayerNamesByGameIdAndTeamId(gameId, teamId);
+        List<BowlingInningsResponse> bowlingInnings = bowlingInningsRepository.findWithPlayerNamesByGameIdAndTeamId(gameId, teamId);
 
         return new TeamStatisticsResponse(bowlingInnings, battingInnings);
     }

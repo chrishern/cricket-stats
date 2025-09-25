@@ -86,6 +86,7 @@ public class GetGameTeamStatisticsIT extends AbstractIntegrationTest {
         assertThat(statistics.getBatting()).hasSize(2);
         assertThat(statistics.getBatting().get(0).getId()).isEqualTo(1);
         assertThat(statistics.getBatting().get(0).getPlayerId()).isEqualTo(1);
+        assertThat(statistics.getBatting().get(0).getPlayerName()).isEqualTo("Player One");
         assertThat(statistics.getBatting().get(0).getTeamId()).isEqualTo(1);
         assertThat(statistics.getBatting().get(0).getRuns()).isEqualTo(45);
         assertThat(statistics.getBatting().get(0).getBalls()).isEqualTo(32);
@@ -93,6 +94,7 @@ public class GetGameTeamStatisticsIT extends AbstractIntegrationTest {
 
         assertThat(statistics.getBatting().get(1).getId()).isEqualTo(2);
         assertThat(statistics.getBatting().get(1).getPlayerId()).isEqualTo(2);
+        assertThat(statistics.getBatting().get(1).getPlayerName()).isEqualTo("Player Two");
         assertThat(statistics.getBatting().get(1).getTeamId()).isEqualTo(1);
         assertThat(statistics.getBatting().get(1).getRuns()).isEqualTo(23);
         assertThat(statistics.getBatting().get(1).getBalls()).isEqualTo(19);
@@ -102,6 +104,7 @@ public class GetGameTeamStatisticsIT extends AbstractIntegrationTest {
         assertThat(statistics.getBowling()).hasSize(2);
         assertThat(statistics.getBowling().get(0).getId()).isEqualTo(1);
         assertThat(statistics.getBowling().get(0).getPlayerId()).isEqualTo(1);
+        assertThat(statistics.getBowling().get(0).getPlayerName()).isEqualTo("Player One");
         assertThat(statistics.getBowling().get(0).getTeamId()).isEqualTo(1);
         assertThat(statistics.getBowling().get(0).getOvers()).isEqualTo(4.0);
         assertThat(statistics.getBowling().get(0).getWickets()).isEqualTo(2);
@@ -109,6 +112,7 @@ public class GetGameTeamStatisticsIT extends AbstractIntegrationTest {
 
         assertThat(statistics.getBowling().get(1).getId()).isEqualTo(2);
         assertThat(statistics.getBowling().get(1).getPlayerId()).isEqualTo(3);
+        assertThat(statistics.getBowling().get(1).getPlayerName()).isEqualTo("Player Three");
         assertThat(statistics.getBowling().get(1).getTeamId()).isEqualTo(1);
         assertThat(statistics.getBowling().get(1).getOvers()).isEqualTo(3.0);
         assertThat(statistics.getBowling().get(1).getWickets()).isEqualTo(1);

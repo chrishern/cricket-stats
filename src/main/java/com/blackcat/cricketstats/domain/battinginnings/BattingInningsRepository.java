@@ -1,8 +1,10 @@
 package com.blackcat.cricketstats.domain.battinginnings;
 
+import com.blackcat.cricketstats.application.dto.BattingInningsResponse;
+
 import java.util.List;
 
 public interface BattingInningsRepository {
     Integer save(BattingInnings battingInnings);
-    List<BattingInnings> findByGameIdAndTeamId(Integer gameId, Integer teamId);
+    List<BattingInningsResponse> findWithPlayerNamesByGameIdAndTeamId(Integer gameId, Integer teamId);
 }

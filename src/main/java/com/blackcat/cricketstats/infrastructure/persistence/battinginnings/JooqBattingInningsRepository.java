@@ -1,5 +1,6 @@
 package com.blackcat.cricketstats.infrastructure.persistence.battinginnings;
 
+import com.blackcat.cricketstats.application.dto.BattingInningsResponse;
 import com.blackcat.cricketstats.domain.battinginnings.BattingInnings;
 import com.blackcat.cricketstats.domain.battinginnings.BattingInningsRepository;
 import org.jooq.DSLContext;
@@ -8,6 +9,7 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 import static com.blackcat.cricketstats.jooq.Tables.BATTING_INNINGS;
+import static com.blackcat.cricketstats.jooq.Tables.PLAYER;
 
 @Repository
 public class JooqBattingInningsRepository implements BattingInningsRepository {
@@ -43,24 +45,41 @@ public class JooqBattingInningsRepository implements BattingInningsRepository {
     }
 
     @Override
-    public List<BattingInnings> findByGameIdAndTeamId(Integer gameId, Integer teamId) {
-        return dsl.selectFrom(BATTING_INNINGS)
+    public List<BattingInningsResponse> findWithPlayerNamesByGameIdAndTeamId(Integer gameId, Integer teamId) {
+        return dsl.select(
+                        BATTING_INNINGS.ID,
+                        BATTING_INNINGS.GAME,
+                        BATTING_INNINGS.PLAYER,
+                        PLAYER.FULL_NAME,
+                        BATTING_INNINGS.TEAM_ID,
+                        BATTING_INNINGS.INNINGS_ORDER,
+                        BATTING_INNINGS.RUNS,
+                        BATTING_INNINGS.BALLS,
+                        BATTING_INNINGS.DOTS,
+                        BATTING_INNINGS.FOURS_SCORED,
+                        BATTING_INNINGS.SIXES_SCORED,
+                        BATTING_INNINGS.MINUTES_BATTED,
+                        BATTING_INNINGS.STRIKE_RATE
+                )
+                .from(BATTING_INNINGS)
+                .join(PLAYER).on(BATTING_INNINGS.PLAYER.eq(PLAYER.ID))
                 .where(BATTING_INNINGS.GAME.eq(gameId))
                 .and(BATTING_INNINGS.TEAM_ID.eq(teamId))
                 .orderBy(BATTING_INNINGS.INNINGS_ORDER)
-                .fetch(record -> new BattingInnings(
-                    record.getId(),
-                    record.getGame(),
-                    record.getPlayer(),
-                    record.getTeamId(),
-                    record.getInningsOrder(),
-                    record.getRuns(),
-                    record.getBalls(),
-                    record.getDots(),
-                    record.getFoursScored(),
-                    record.getSixesScored(),
-                    record.getMinutesBatted(),
-                    record.getStrikeRate()
+                .fetch(record -> new BattingInningsResponse(
+                        record.get(BATTING_INNINGS.ID),
+                        record.get(BATTING_INNINGS.GAME),
+                        record.get(BATTING_INNINGS.PLAYER),
+                        record.get(PLAYER.FULL_NAME),
+                        record.get(BATTING_INNINGS.TEAM_ID),
+                        record.get(BATTING_INNINGS.INNINGS_ORDER),
+                        record.get(BATTING_INNINGS.RUNS),
+                        record.get(BATTING_INNINGS.BALLS),
+                        record.get(BATTING_INNINGS.DOTS),
+                        record.get(BATTING_INNINGS.FOURS_SCORED),
+                        record.get(BATTING_INNINGS.SIXES_SCORED),
+                        record.get(BATTING_INNINGS.MINUTES_BATTED),
+                        record.get(BATTING_INNINGS.STRIKE_RATE)
                 ));
     }
 }
